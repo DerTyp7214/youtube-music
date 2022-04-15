@@ -1,3 +1,7 @@
+:root {
+	--ytmusic-scrollbar-width: 8px !important;
+}
+
 /* increase font size for menu and menuItems */
 .titlebar,
 .menubar-menu-container .action-label {
@@ -44,15 +48,21 @@ yt-page-navigation-progress,
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-	width: 12px;
-	background-color: #030303;
-	border-radius: 100px;
-	-moz-border-radius: 100px;
-	-webkit-border-radius: 100px;
+	width: var(--ytmusic-scrollbar-width);
+	background-color: transparent;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+
+	border-top: solid var(--ytmusic-nav-bar-height) transparent;
+}
+
+::-webkit-scrollbar-track {
+	display: none;
 }
 /* hover effect for both scrollbar area, and scrollbar 'thumb' */
 ::-webkit-scrollbar:hover {
-	background-color: rgba(15, 15, 15, 0.699);
+	background-color: rgba(5, 5, 5, 0.699);
 }
 
 /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
@@ -61,13 +71,13 @@ yt-page-navigation-progress,
 	border: 2px solid rgba(0, 0, 0, 0);
 
 	background: #3a3a3a;
-	border-radius: 100px;
-	-moz-border-radius: 100px;
-	-webkit-border-radius: 100px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:vertical:active {
 	background: #4d4c4c; /* Some darker color when you click it */
-	border-radius: 100px;
-	-moz-border-radius: 100px;
-	-webkit-border-radius: 100px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
 }
