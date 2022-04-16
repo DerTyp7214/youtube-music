@@ -1,6 +1,6 @@
-const { ipcRenderer } = require("electron");
+const {ipcRenderer} = require("electron");
 const is = require('electron-is');
-const { getImage } = require("./song-info");
+const {getImage} = require("./song-info");
 
 const config = require("../config");
 
@@ -31,16 +31,42 @@ module.exports = () => {
 			sendSongInfo();
 		})
 
+		const like = $('.like.ytmusic-like-button-renderer')
+		const dislike = $('.dislike.ytmusic-like-button-renderer')
+		const repeat = $('ytmusic-player-bar.ytmusic-app')
+		const progress = $('#progress-bar')
+
 		for (const status of ['playing', 'pause']) {
 			video.addEventListener(status, e => {
 				if (Math.round(e.target.currentTime) > 0) {
 					ipcRenderer.send("playPaused", {
 						isPaused: status === 'pause',
-						elapsedSeconds: Math.floor(e.target.currentTime)
+						elapsedSeconds: progress.value
 					});
 				}
 			});
 		}
+
+		const observer = new MutationObserver(() => {
+			ipcRenderer.send("playerStatus", {
+				isLiked: like.ariaPressed === 'true',
+				isDisliked: dislike.ariaPressed === 'true',
+				repeatMode: repeat.repeatMode_
+			})
+		})
+
+		observer.observe(like, {attributes: true, attributeFilter: ['aria-pressed']})
+		observer.observe(dislike, {attributes: true, attributeFilter: ['aria-pressed']})
+		observer.observe(repeat, {attributes: true, attributeFilter: ['repeat-mode_']})
+
+
+		const progressObserver = new MutationObserver(mutations => {
+			ipcRenderer.send("elapsedSecondsChanged", {
+				elapsedSeconds: mutations[0].target.value
+			})
+		});
+
+		progressObserver.observe(progress, {attributeFilter: ["value"]})
 
 		function sendSongInfo() {
 			const data = apiEvent.detail.getPlayerResponse();
@@ -53,7 +79,7 @@ module.exports = () => {
 			data.videoDetails.isPaused = false;
 			ipcRenderer.send("video-src-changed", JSON.stringify(data));
 		}
-	}, { once: true, passive: true });
+	}, {once: true, passive: true});
 };
 
 function setupTimeChangeListener() {
@@ -61,5 +87,5 @@ function setupTimeChangeListener() {
 		ipcRenderer.send('timeChanged', mutations[0].target.value);
 		global.songInfo.elapsedSeconds = mutations[0].target.value;
 	});
-	progressObserver.observe($('#progress-bar'), { attributeFilter: ["value"] })
+	progressObserver.observe($('#progress-bar'), {attributeFilter: ["value"]})
 }

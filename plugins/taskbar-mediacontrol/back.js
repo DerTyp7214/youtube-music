@@ -6,8 +6,8 @@ let controls;
 let currentSongInfo;
 
 module.exports = win => {
-	const { playPause, next, previous } = getSongControls(win);
-	controls = { playPause, next, previous };
+	const {playPause, next, previous} = getSongControls(win);
+	controls = {playPause, next, previous};
 
 	registerCallback(songInfo => {
 		//update currentsonginfo for win.on('show')
@@ -16,7 +16,7 @@ module.exports = win => {
 		setThumbar(win, songInfo);
 	});
 
-	// need to set thumbar again after win.show 
+	// need to set thumbar again after win.show
 	win.on("show", () => {
 		setThumbar(win, currentSongInfo)
 	})
@@ -32,22 +32,33 @@ function setThumbar(win, songInfo) {
 	win.setThumbarButtons([
 		{
 			tooltip: 'Previous',
-			icon: get('backward.png'),
-			click() { controls.previous(win.webContents); }
+			icon: getThemedImage('backward'),
+			click() {
+				controls.previous(win.webContents);
+			}
 		}, {
 			tooltip: 'Play/Pause',
 			// Update icon based on play state
-			icon: songInfo.isPaused ? get('play.png') : get('pause.png'),
-			click() { controls.playPause(win.webContents); }
+			icon: songInfo.isPaused ? getThemedImage('play') : getThemedImage('pause'),
+			click() {
+				controls.playPause(win.webContents);
+			}
 		}, {
 			tooltip: 'Next',
-			icon: get('forward.png'),
-			click() { controls.next(win.webContents); }
+			icon: getThemedImage('forward'),
+			click() {
+				controls.next(win.webContents);
+			}
 		}
 	]);
 }
 
 // Util
+function getThemedImage(name) {
+	const mode = '_dark'
+	return get(`${name}${mode}.png`)
+}
+
 function get(file) {
 	return path.join(__dirname, "assets", file);
 }

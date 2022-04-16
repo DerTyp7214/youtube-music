@@ -1,4 +1,4 @@
-const { ipcMain, nativeImage } = require("electron");
+const {ipcMain, nativeImage} = require("electron");
 
 const fetch = require("node-fetch");
 
@@ -22,6 +22,9 @@ const songInfo = {
 	album: undefined,
 	videoId: "",
 	playlistId: "",
+	liked: false,
+	disliked: false,
+	repeatMode: "NONE"
 };
 
 // Grab the native image using the src
@@ -98,13 +101,27 @@ const registerProvider = (win) => {
 			c(songInfo);
 		});
 	});
-	ipcMain.on("playPaused", (_, { isPaused, elapsedSeconds }) => {
+	ipcMain.on("playPaused", (_, {isPaused, elapsedSeconds}) => {
 		songInfo.isPaused = isPaused;
 		songInfo.elapsedSeconds = elapsedSeconds;
 		if (handlingData) return;
 		callbacks.forEach((c) => {
 			c(songInfo);
 		});
+	})
+	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode}) => {
+		songInfo.liked = isLiked
+		songInfo.disliked = isDisliked
+		songInfo.repeatMode = repeatMode
+		callbacks.forEach((c) => {
+			c(songInfo)
+		})
+	})
+	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds}) => {
+		songInfo.elapsedSeconds = elapsedSeconds
+		callbacks.forEach((c) => {
+			c(songInfo)
+		})
 	})
 };
 

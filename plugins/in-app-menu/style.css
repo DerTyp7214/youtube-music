@@ -2,6 +2,10 @@
 	--ytmusic-scrollbar-width: 8px !important;
 }
 
+body {
+	background: transparent !important;
+}
+
 /* increase font size for menu and menuItems */
 .titlebar,
 .menubar-menu-container .action-label {

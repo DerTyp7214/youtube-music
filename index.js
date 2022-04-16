@@ -7,14 +7,14 @@ remote.initialize();
 const enhanceWebRequest = require("electron-better-web-request").default;
 const is = require("electron-is");
 const unhandled = require("electron-unhandled");
-const { autoUpdater } = require("electron-updater");
+const {autoUpdater} = require("electron-updater");
 
 const config = require("./config");
-const { setApplicationMenu } = require("./menu");
-const { fileExists, injectCSS } = require("./plugins/utils");
-const { isTesting } = require("./utils/testing");
-const { setUpTray } = require("./tray");
-const { setupSongInfo } = require("./providers/song-info");
+const {setApplicationMenu} = require("./menu");
+const {fileExists, injectCSS} = require("./plugins/utils");
+const {isTesting} = require("./utils/testing");
+const {setUpTray} = require("./tray");
+const {setupSongInfo} = require("./providers/song-info");
 
 // Catch errors and log them
 unhandled({
@@ -30,7 +30,7 @@ const app = electron.app;
 let mainWindow;
 autoUpdater.autoDownload = false;
 
-if(config.get("options.singleInstanceLock")){
+if (config.get("options.singleInstanceLock")) {
 	const gotTheLock = app.requestSingleInstanceLock();
 	if (!gotTheLock) app.quit();
 
@@ -130,18 +130,19 @@ function createMainWindow() {
 				}
 				: undefined),
 		},
-		frame: !is.macOS() && !useInlineMenu,
+		frame: false /*!is.macOS() && !useInlineMenu*/,
+		vibrancy: 'dark',
 		titleBarStyle: useInlineMenu
 			? "hidden"
 			: is.macOS()
-			? "hiddenInset"
-			: "default",
+				? "hiddenInset"
+				: "default",
 		autoHideMenuBar: config.get("options.hideMenu"),
 	});
 	remote.enable(win.webContents);
 
 	if (windowPosition) {
-		const { x, y } = windowPosition;
+		const {x, y} = windowPosition;
 		const winSize = win.getSize();
 		const displaySize =
 			electron.screen.getDisplayNearestPoint(windowPosition).bounds;
@@ -165,7 +166,7 @@ function createMainWindow() {
 		win.maximize();
 	}
 
-	if(config.get("options.alwaysOnTop")){
+	if (config.get("options.alwaysOnTop")) {
 		win.setAlwaysOnTop(true);
 	}
 
@@ -182,7 +183,7 @@ function createMainWindow() {
 			config.plugins.isEnabled("picture-in-picture") &&
 			config.plugins.getOptions("picture-in-picture")["isInPiP"];
 		if (!isPiPEnabled) {
-			lateSave("window-position", { x: position[0], y: position[1] });
+			lateSave("window-position", {x: position[0], y: position[1]});
 		}
 	});
 
@@ -208,6 +209,7 @@ function createMainWindow() {
 	});
 
 	let savedTimeouts = {};
+
 	function lateSave(key, value) {
 		if (savedTimeouts[key]) clearTimeout(savedTimeouts[key]);
 
@@ -255,7 +257,7 @@ app.once("browser-window-created", (event, win) => {
 			if (win.webContents.getURL().startsWith("https://accounts.google.com") && details.url.startsWith("https://accounts.google.com")) {
 				details.requestHeaders["User-Agent"] = originalUserAgent;
 			}
-			cb({ requestHeaders: details.requestHeaders });
+			cb({requestHeaders: details.requestHeaders});
 		});
 	}
 
@@ -283,7 +285,7 @@ app.once("browser-window-created", (event, win) => {
 		if (is.dev()) {
 			console.log(log);
 		}
-		if( !(config.plugins.isEnabled("in-app-menu") && errorCode === -3)) { // -3 is a false positive with in-app-menu
+		if (!(config.plugins.isEnabled("in-app-menu") && errorCode === -3)) { // -3 is a false positive with in-app-menu
 			win.webContents.send("log", log);
 			win.webContents.loadFile(path.join(__dirname, "error.html"));
 		}
@@ -437,7 +439,7 @@ app.on("ready", () => {
 
 function showUnresponsiveDialog(win, details) {
 	if (!!details) {
-		console.log("Unresponsive Error!\n"+JSON.stringify(details, null, "\t"))
+		console.log("Unresponsive Error!\n" + JSON.stringify(details, null, "\t"))
 	}
 	electron.dialog.showMessageBox(win, {
 		type: "error",
@@ -446,7 +448,7 @@ function showUnresponsiveDialog(win, details) {
 		details: "We are sorry for the inconvenience! please choose what to do:",
 		buttons: ["Wait", "Relaunch", "Quit"],
 		cancelId: 0
-	}).then( result => {
+	}).then(result => {
 		switch (result.response) {
 			case 1: //if relaunch - relaunch+exit
 				app.relaunch();
@@ -473,10 +475,10 @@ function removeContentSecurityPolicy(
 			!details.responseHeaders["content-security-policy-report-only"] &&
 			!details.responseHeaders["content-security-policy"]
 		)
-			return callback({ cancel: false });
+			return callback({cancel: false});
 		delete details.responseHeaders["content-security-policy-report-only"];
 		delete details.responseHeaders["content-security-policy"];
-		callback({ cancel: false, responseHeaders: details.responseHeaders });
+		callback({cancel: false, responseHeaders: details.responseHeaders});
 	});
 
 	// When multiple listeners are defined, apply them all
@@ -488,9 +490,9 @@ function removeContentSecurityPolicy(
 				}
 
 				const result = await listener.apply();
-				return { ...accumulator, ...result };
+				return {...accumulator, ...result};
 			},
-			{ cancel: false }
+			{cancel: false}
 		);
 
 		return response;

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { ipcMain, ipcRenderer } = require("electron");
+const {ipcMain, ipcRenderer} = require("electron");
 
 // Creates a DOM element from a HTML string
 module.exports.ElementFromHtml = (html) => {
@@ -59,3 +59,15 @@ module.exports.getAllPlugins = () => {
 		.filter(isDirectory)
 		.map((name) => path.basename(name));
 };
+
+module.exports.hasJsonStructure = (str) => {
+	if (typeof str !== 'string') return false;
+	try {
+		const result = JSON.parse(str);
+		const type = Object.prototype.toString.call(result);
+		return type === '[object Object]'
+			|| type === '[object Array]';
+	} catch (err) {
+		return false;
+	}
+}
