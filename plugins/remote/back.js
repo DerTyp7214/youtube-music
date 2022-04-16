@@ -34,7 +34,6 @@ function connected(ws, win) {
 
 			switch (json.action) {
 				case 'status':
-					console.log(json)
 					ws.send(JSON.stringify({action: 'status', data: {name: 'ytmd'}}))
 					break;
 				case 'playPause':
@@ -74,6 +73,13 @@ function connected(ws, win) {
 						const {volume} = json.data
 
 						win.webContents.send('volumeChange', volume)
+					}
+					break;
+				case 'videoId':
+					if (json.data) {
+						const {videoId} = json.data
+
+						win.webContents.loadURL(`https://music.youtube.com/watch?v=${videoId}`)
 					}
 					break;
 			}
