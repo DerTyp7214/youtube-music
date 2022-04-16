@@ -5,13 +5,15 @@ const getSongControls = require('../../providers/song-controls');
 const registerCallback = require("../../providers/song-info");
 const {hasJsonStructure} = require("../utils");
 
+let port = 8080
+
 let controls
 let currentSongInfo
 
 module.exports = (win, options) => {
 	controls = getSongControls(win);
 
-	const wss = new WebSocketServer({port: 8080})
+	const wss = new WebSocketServer({port})
 
 	registerCallback(songInfo => {
 		currentSongInfo = songInfo
@@ -31,6 +33,10 @@ function connected(ws, win) {
 			const json = JSON.parse(data)
 
 			switch (json.action) {
+				case 'status':
+					console.log(json)
+					ws.send(JSON.stringify({action: 'status', data: {name: 'ytmd'}}))
+					break;
 				case 'playPause':
 					controls.playPause()
 					break;
@@ -63,7 +69,16 @@ function connected(ws, win) {
 						win.webContents.send('seekTo', elapsedSeconds)
 					}
 					break;
+				case 'volume':
+					if (json.data) {
+						const {volume} = json.data
+
+						win.webContents.send('volumeChange', volume)
+					}
+					break;
 			}
 		}
 	})
 }
+
+module.exports.port = port

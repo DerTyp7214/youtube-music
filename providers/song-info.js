@@ -24,7 +24,9 @@ const songInfo = {
 	playlistId: "",
 	liked: false,
 	disliked: false,
-	repeatMode: "NONE"
+	repeatMode: "NONE",
+	volume: 0,
+	isMuted: false
 };
 
 // Grab the native image using the src
@@ -117,8 +119,16 @@ const registerProvider = (win) => {
 			c(songInfo)
 		})
 	})
-	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds}) => {
+	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds, volume}) => {
 		songInfo.elapsedSeconds = elapsedSeconds
+		songInfo.volume = volume
+		callbacks.forEach((c) => {
+			c(songInfo)
+		})
+	})
+	ipcMain.on("frontVolumeChange", (_, {volume, isMuted}) => {
+		songInfo.volume = volume
+		songInfo.isMuted = isMuted
 		callbacks.forEach((c) => {
 			c(songInfo)
 		})
@@ -130,6 +140,8 @@ const suffixesToRemove = [
 	"vevo",
 	" (performance video)",
 	" (clip officiel)",
+	" (epic trailer version)",
+	" (trailer version"
 ];
 
 function cleanupName(name) {

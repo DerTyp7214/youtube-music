@@ -59,14 +59,25 @@ module.exports = () => {
 		observer.observe(dislike, {attributes: true, attributeFilter: ['aria-pressed']})
 		observer.observe(repeat, {attributes: true, attributeFilter: ['repeat-mode_']})
 
-
 		const progressObserver = new MutationObserver(mutations => {
 			ipcRenderer.send("elapsedSecondsChanged", {
-				elapsedSeconds: mutations[0].target.value
+				elapsedSeconds: mutations[0].target.value,
+				volume: apiEvent.detail.getVolume()
 			})
 		});
 
 		progressObserver.observe(progress, {attributeFilter: ["value"]})
+
+		let interval = setInterval(() => {
+			const volume = apiEvent.detail.getVolume()
+			const isMuted = apiEvent.detail.isMuted()
+			if (global.songInfo.volume !== volume || global.songInfo.isMuted !== isMuted) ipcRenderer.send('frontVolumeChange', {
+				volume,
+				isMuted
+			})
+			global.songInfo.volume = volume
+			global.songInfo.isMuted = isMuted
+		}, 100)
 
 		function sendSongInfo() {
 			const data = apiEvent.detail.getPlayerResponse();
