@@ -1,5 +1,4 @@
 const {WebSocketServer} = require('ws')
-const {ipcMain} = require('electron')
 
 const getSongControls = require('../../providers/song-controls');
 const registerCallback = require("../../providers/song-info");
@@ -10,7 +9,7 @@ let port = 8080
 let controls
 let currentSongInfo
 
-module.exports = (win, options) => {
+module.exports = (win) => {
 	controls = getSongControls(win);
 
 	const wss = new WebSocketServer({port})

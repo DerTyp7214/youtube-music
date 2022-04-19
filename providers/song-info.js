@@ -25,6 +25,7 @@ const songInfo = {
 	liked: false,
 	disliked: false,
 	repeatMode: "NONE",
+	fields: [],
 	volume: 0,
 	isMuted: false
 };
@@ -64,6 +65,7 @@ const handleData = async (responseText, win) => {
 		songInfo.isPaused = videoDetails.isPaused;
 		songInfo.videoId = videoDetails.videoId;
 		songInfo.album = data?.videoDetails?.album; // Will be undefined if video exist
+		songInfo.fields = videoDetails.fields
 
 		const oldUrl = songInfo.imageSrc;
 		songInfo.imageSrc = videoDetails.thumbnail?.thumbnails?.pop()?.url.split("?")[0];
@@ -111,10 +113,11 @@ const registerProvider = (win) => {
 			c(songInfo);
 		});
 	})
-	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode}) => {
+	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode, fields}) => {
 		songInfo.liked = isLiked
 		songInfo.disliked = isDisliked
 		songInfo.repeatMode = repeatMode
+		songInfo.fields = fields
 		callbacks.forEach((c) => {
 			c(songInfo)
 		})

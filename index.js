@@ -130,7 +130,7 @@ function createMainWindow() {
 				}
 				: undefined),
 		},
-		frame: false /*!is.macOS() && !useInlineMenu*/,
+		frame: !is.macOS() && !useInlineMenu,
 		vibrancy: 'dark',
 		titleBarStyle: useInlineMenu
 			? "hidden"

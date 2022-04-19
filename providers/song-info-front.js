@@ -51,7 +51,8 @@ module.exports = () => {
 			ipcRenderer.send("playerStatus", {
 				isLiked: like.ariaPressed === 'true',
 				isDisliked: dislike.ariaPressed === 'true',
-				repeatMode: repeat.repeatMode_
+				repeatMode: repeat.repeatMode_,
+				fields: parseClickableLinks()
 			})
 		})
 
@@ -79,6 +80,17 @@ module.exports = () => {
 			global.songInfo.isMuted = isMuted
 		}, 100)
 
+		function parseClickableLinks() {
+			const fields = []
+
+			const parent = $('.content-info-wrapper.ytmusic-player-bar .byline.ytmusic-player-bar')
+
+			for (let field of parent.getElementsByTagName('a'))
+				fields.push({link: field.href, text: field.innerText})
+
+			return fields
+		}
+
 		function sendSongInfo() {
 			const data = apiEvent.detail.getPlayerResponse();
 
@@ -88,6 +100,7 @@ module.exports = () => {
 
 			data.videoDetails.elapsedSeconds = Math.floor(video.currentTime);
 			data.videoDetails.isPaused = false;
+			data.videoDetails.fields = parseClickableLinks()
 			ipcRenderer.send("video-src-changed", JSON.stringify(data));
 		}
 	}, {once: true, passive: true});

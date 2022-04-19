@@ -1,6 +1,8 @@
 const {ipcRenderer} = require("electron");
 const {setOptions} = require("../../config/plugins");
 
+function $(selector) { return document.querySelector(selector); }
+
 let api
 let lastVolume
 
