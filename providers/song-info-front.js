@@ -41,7 +41,8 @@ module.exports = () => {
 				if (Math.round(e.target.currentTime) > 0) {
 					ipcRenderer.send("playPaused", {
 						isPaused: status === 'pause',
-						elapsedSeconds: progress.value
+						elapsedSeconds: progress.value,
+						fields: parseClickableLinks()
 					});
 				}
 			});
@@ -51,8 +52,7 @@ module.exports = () => {
 			ipcRenderer.send("playerStatus", {
 				isLiked: like.ariaPressed === 'true',
 				isDisliked: dislike.ariaPressed === 'true',
-				repeatMode: repeat.repeatMode_,
-				fields: parseClickableLinks()
+				repeatMode: repeat.repeatMode_
 			})
 		})
 
@@ -63,7 +63,8 @@ module.exports = () => {
 		const progressObserver = new MutationObserver(mutations => {
 			ipcRenderer.send("elapsedSecondsChanged", {
 				elapsedSeconds: mutations[0].target.value,
-				volume: apiEvent.detail.getVolume()
+				volume: apiEvent.detail.getVolume(),
+				fields: parseClickableLinks()
 			})
 		});
 

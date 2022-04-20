@@ -105,19 +105,19 @@ const registerProvider = (win) => {
 			c(songInfo);
 		});
 	});
-	ipcMain.on("playPaused", (_, {isPaused, elapsedSeconds}) => {
+	ipcMain.on("playPaused", (_, {isPaused, elapsedSeconds, fields}) => {
 		songInfo.isPaused = isPaused;
 		songInfo.elapsedSeconds = elapsedSeconds;
+		songInfo.fields = fields
 		if (handlingData) return;
 		callbacks.forEach((c) => {
 			c(songInfo);
 		});
 	})
-	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode, fields}) => {
+	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode}) => {
 		songInfo.liked = isLiked
 		songInfo.disliked = isDisliked
 		songInfo.repeatMode = repeatMode
-		songInfo.fields = fields
 		callbacks.forEach((c) => {
 			c(songInfo)
 		})
