@@ -1,8 +1,9 @@
 name: CI Build YouTube Music
 
 on:
-  - push
-  - workflow_dispatch
+  push:
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
