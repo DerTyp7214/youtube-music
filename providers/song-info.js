@@ -122,10 +122,11 @@ const registerProvider = (win) => {
 			c(songInfo)
 		})
 	})
-	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds, volume, fields}) => {
+	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds, volume, fields, isPaused}) => {
 		songInfo.elapsedSeconds = elapsedSeconds
 		songInfo.volume = volume
 		songInfo.fields = fields
+		songInfo.isPaused = isPaused
 		callbacks.forEach((c) => {
 			c(songInfo)
 		})

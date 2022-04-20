@@ -34,6 +34,7 @@ module.exports = () => {
 		const like = $('.like.ytmusic-like-button-renderer')
 		const dislike = $('.dislike.ytmusic-like-button-renderer')
 		const repeat = $('ytmusic-player-bar.ytmusic-app')
+		const playPause = $('#play-pause-button')
 		const progress = $('#progress-bar')
 
 		for (const status of ['playing', 'pause']) {
@@ -64,7 +65,8 @@ module.exports = () => {
 			ipcRenderer.send("elapsedSecondsChanged", {
 				elapsedSeconds: mutations[0].target.value,
 				volume: apiEvent.detail.getVolume(),
-				fields: parseClickableLinks()
+				fields: parseClickableLinks(),
+				isPaused: playPause.ariaLabel !== 'Pause'
 			})
 		});
 
