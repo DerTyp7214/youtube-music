@@ -32,7 +32,6 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: Build on Windows
-        if: startsWith(matrix.os, 'windows')
         run: |
           yarn run build:win
 
