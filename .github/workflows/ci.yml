@@ -33,6 +33,7 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: Build on Windows
+        continue-on-error: true
         run: |
           yarn run build:win
 
@@ -41,7 +42,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GH_TOKEN }}
-          automatic_release_tag: latest-debug
+          automatic_release_tag: latest
           prerelease: true
           title: YouTube Music Desktop
           files: |
