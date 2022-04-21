@@ -55,9 +55,36 @@ jobs:
         run: |
           yarn run build:mac
 
-      - run: ls -la dist
+      - run: ls dist
+
+      - name: Create new Windows Release
+        if: startsWith(matrix.os, 'windows')
+        id: create_latest_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GH_TOKEN }}
+          automatic_release_tag: latest-windows
+          prerelease: true
+          title: YouTube Music Desktop
+          files: |
+            dist/YouTube*.exe
+
+
+      - name: Create new Mac Release
+        if: startsWith(matrix.os, 'macOS')
+        id: create_latest_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GH_TOKEN }}
+          automatic_release_tag: latest-mac
+          prerelease: true
+          title: YouTube Music Desktop
+          files: |
+            dist/YouTube*.dmg
+
 
       - name: Create new Release
+        if: startsWith(matrix.os, 'ubuntu')
         id: create_latest_release
         uses: marvinpinto/action-automatic-releases@latest
         with:
