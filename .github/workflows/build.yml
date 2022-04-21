@@ -127,7 +127,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-windows
-          prerelease: false
+          prerelease: true
           title: YouTube Music Desktop for Windows
           files: |
             dist/YouTube*.exe
@@ -139,7 +139,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-mac
-          prerelease: false
+          prerelease: true
           title: YouTube Music Desktop for Mac
           files: |
             dist/YouTube*.dmg
@@ -151,7 +151,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-linux
-          prerelease: false
+          prerelease: true
           title: YouTube Music Desktop for Linux
           files: |
             dist/YouTube*.AppImage
