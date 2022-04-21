@@ -65,7 +65,7 @@ jobs:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-windows
           prerelease: false
-          title: YouTube Music Desktop
+          title: YouTube Music Desktop for Windows
           files: |
             dist/YouTube*.exe
 
@@ -77,7 +77,7 @@ jobs:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-mac
           prerelease: false
-          title: YouTube Music Desktop
+          title: YouTube Music Desktop for Mac
           files: |
             dist/YouTube*.dmg
 
@@ -89,6 +89,10 @@ jobs:
           repo_token: ${{ secrets.GH_TOKEN }}
           automatic_release_tag: latest-linux
           prerelease: false
-          title: YouTube Music Desktop
+          title: YouTube Music Desktop for Linux
           files: |
-            dist/YouTube*.exe
+            dist/YouTube*.AppImage
+            dist/youtube*.snap
+            dist/youtube*.freebsd
+            dist/youtube*.deb
+            dist/youtube*.rpm
