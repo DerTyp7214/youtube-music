@@ -8,7 +8,12 @@ on:
 jobs:
   build:
     name: Build YouTube Music
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
     steps:
       - uses: actions/checkout@v2
 
@@ -33,9 +38,24 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: Build on Windows
+        if: startsWith(matrix.os, 'windows')
         continue-on-error: true
         run: |
           yarn run build:win
+
+      - name: Build on Linux
+        if: startsWith(matrix.os, 'ubuntu')
+        continue-on-error: true
+        run: |
+          yarn run build:linux
+
+      - name: Build on Mac
+        if: startsWith(matrix.os, 'macOS')
+        continue-on-error: true
+        run: |
+          yarn run build:mac
+
+      - run: ls -la dist
 
       - name: Create new Release
         id: create_latest_release
