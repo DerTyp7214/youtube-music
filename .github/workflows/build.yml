@@ -1,8 +1,9 @@
 name: Build YouTube Music
 
 on:
-  - push
-  - workflow_dispatch
+  push:
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -115,3 +116,46 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           yarn run release:win
+
+      # CUSTOM RELEASES
+      #################
+
+      - name: Create new Windows Release
+        if: startsWith(matrix.os, 'windows')
+        id: create_latest_windows_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GH_TOKEN }}
+          automatic_release_tag: latest-windows
+          prerelease: false
+          title: YouTube Music Desktop for Windows
+          files: |
+            dist/YouTube*.exe
+
+      - name: Create new Mac Release
+        if: startsWith(matrix.os, 'macOS')
+        id: create_latest_mac_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GH_TOKEN }}
+          automatic_release_tag: latest-mac
+          prerelease: false
+          title: YouTube Music Desktop for Mac
+          files: |
+            dist/YouTube*.dmg
+
+      - name: Create new Linux Release
+        if: startsWith(matrix.os, 'ubuntu')
+        id: create_latest_linux_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GH_TOKEN }}
+          automatic_release_tag: latest-linux
+          prerelease: false
+          title: YouTube Music Desktop for Linux
+          files: |
+            dist/YouTube*.AppImage
+            dist/youtube*.snap
+            dist/youtube*.freebsd
+            dist/youtube*.deb
+            dist/youtube*.rpm
