@@ -20,7 +20,9 @@ module.exports = (win) => {
 	});
 
 	wss.on('connection', (ws) => {
-		connected(ws, win)
+		setTimeout(() => {
+			connected(ws, win)
+		}, 200)
 	})
 }
 
