@@ -88,7 +88,7 @@ module.exports = () => {
 
 			const parent = $('.content-info-wrapper.ytmusic-player-bar .byline.ytmusic-player-bar')
 
-			for (let field of parent.getElementsByTagName('a'))
+			if (parent) for (let field of parent.getElementsByTagName('a'))
 				fields.push({link: field.href, text: field.innerText})
 
 			return fields
