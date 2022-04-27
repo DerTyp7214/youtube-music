@@ -34,7 +34,6 @@ module.exports = () => {
 		const like = $('.like.ytmusic-like-button-renderer')
 		const dislike = $('.dislike.ytmusic-like-button-renderer')
 		const repeat = $('ytmusic-player-bar.ytmusic-app')
-		const playPause = $('#play-pause-button')
 		const progress = $('#progress-bar')
 
 		for (const status of ['playing', 'pause']) {
@@ -66,7 +65,7 @@ module.exports = () => {
 				elapsedSeconds: mutations[0].target.value,
 				volume: apiEvent.detail.getVolume(),
 				fields: parseClickableLinks(),
-				isPaused: playPause.ariaLabel !== 'Pause'
+				isPaused: video.paused
 			})
 		});
 
@@ -102,7 +101,7 @@ module.exports = () => {
 			).find(e => e.href?.includes("browse"))?.textContent;
 
 			data.videoDetails.elapsedSeconds = Math.floor(video.currentTime);
-			data.videoDetails.isPaused = false;
+			data.videoDetails.isPaused = video.paused;
 			data.videoDetails.fields = parseClickableLinks()
 			ipcRenderer.send("video-src-changed", JSON.stringify(data));
 		}
