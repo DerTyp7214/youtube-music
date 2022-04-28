@@ -85,6 +85,13 @@ function connected(ws, win) {
 						win.webContents.loadURL(`https://music.youtube.com/watch?v=${videoId}`)
 					}
 					break;
+				case 'queueVideoId':
+					if (json.data) {
+						const {videoId} = json.data
+
+						win.webContents.send('playQueueItemById', videoId)
+					}
+					break;
 				case 'requestQueue':
 					win.webContents.send('requestQueue')
 					break;

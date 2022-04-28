@@ -6,7 +6,6 @@ function $(selector) {
 }
 
 let api
-let lastVolume
 
 module.exports = (options) => {
 	document.addEventListener('apiLoaded', e => {
@@ -19,6 +18,10 @@ module.exports = (options) => {
 		ipcRenderer.on('requestQueue', (_) => {
 			ipcRenderer.send('returnQueue', getQueue())
 		})
+
+		ipcRenderer.on('playQueueItemById', (_, videoId) => {
+			playQueueItemById(videoId)
+		})
 	})
 }
 
@@ -30,12 +33,21 @@ function changeVolume(volume, options) {
 	saveVolume(api.getVolume(), options);
 }
 
+function playQueueItemById(videoId) {
+	$(`[videoid="${videoId}"] ytmusic-play-button-renderer`)?.click()
+}
+
+function getQueueElements() {
+	const queueWrapper = $('ytmusic-tab-renderer #contents.ytmusic-player-queue')
+	const queueWrapper2 = $('#contents.ytmusic-player-queue')
+
+	if (!queueWrapper && !queueWrapper2) return []
+
+	return [...(queueWrapper ?? queueWrapper2).querySelectorAll(':scope > ytmusic-player-queue-item, #primary-renderer>ytmusic-player-queue-item')]
+}
+
 function getQueue() {
-	const queueWrapper = $('#contents.ytmusic-player-queue')
-
-	if (!queueWrapper) return []
-
-	const items = [...queueWrapper.querySelectorAll(':scope > ytmusic-player-queue-item, #primary-renderer>ytmusic-player-queue-item')]
+	const items = getQueueElements()
 	const currentPlayIndex = items.findIndex(item => item.hasAttribute('selected'))
 
 	return items.splice(currentPlayIndex, items.length - currentPlayIndex).map(item => {
@@ -46,6 +58,8 @@ function getQueue() {
 			title,
 			videoId
 		} = item.__data.data
+
+		item.setAttribute('videoId', videoId)
 
 		return {
 			title: cleanupName(title.runs[0].text),
