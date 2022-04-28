@@ -1,5 +1,6 @@
-const {WebSocketServer} = require('ws')
+const {ipcMain} = require("electron");
 
+const {WebSocketServer} = require('ws')
 const getSongControls = require('../../providers/song-controls');
 const registerCallback = require("../../providers/song-info");
 const {hasJsonStructure} = require("../utils");
@@ -21,6 +22,9 @@ module.exports = (win) => {
 
 	wss.on('connection', (ws) => {
 		connected(ws, win)
+		ipcMain.on('returnQueue', (_, queue) => {
+			ws.send(JSON.stringify({action: 'queue', data: queue}))
+		})
 	})
 }
 
@@ -80,6 +84,9 @@ function connected(ws, win) {
 
 						win.webContents.loadURL(`https://music.youtube.com/watch?v=${videoId}`)
 					}
+					break;
+				case 'requestQueue':
+					win.webContents.send('requestQueue')
 					break;
 			}
 		}

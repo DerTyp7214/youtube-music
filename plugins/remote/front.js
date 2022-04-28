@@ -1,7 +1,9 @@
 const {ipcRenderer} = require("electron");
 const {setOptions} = require("../../config/plugins");
 
-function $(selector) { return document.querySelector(selector); }
+function $(selector) {
+	return document.querySelector(selector);
+}
 
 let api
 let lastVolume
@@ -13,6 +15,10 @@ module.exports = (options) => {
 		ipcRenderer.on('volumeChange', (_, volume) => {
 			changeVolume(volume, options)
 		})
+
+		ipcRenderer.on('requestQueue', (_) => {
+			ipcRenderer.send('returnQueue', getQueue())
+		})
 	})
 }
 
@@ -22,6 +28,33 @@ function changeVolume(volume, options) {
 
 	// Save the new volume
 	saveVolume(api.getVolume(), options);
+}
+
+function getQueue() {
+	const queueWrapper = $('#contents.ytmusic-player-queue')
+
+	if (!queueWrapper) return []
+
+	const items = [...queueWrapper.querySelectorAll(':scope > ytmusic-player-queue-item, #primary-renderer>ytmusic-player-queue-item')]
+	const currentPlayIndex = items.findIndex(item => item.hasAttribute('selected'))
+
+	return items.splice(currentPlayIndex, items.length - currentPlayIndex).map(item => {
+		const {
+			lengthText,
+			shortBylineText,
+			thumbnail,
+			title,
+			videoId
+		} = item.__data.data
+
+		return {
+			title: cleanupName(title.runs[0].text),
+			artist: shortBylineText.runs[0].text,
+			image: thumbnail.thumbnails[thumbnail.thumbnails.length - 1].url,
+			duration: lengthText.runs[0].text,
+			videoId
+		}
+	})
 }
 
 function saveVolume(volume, options) {
@@ -51,4 +84,25 @@ function writeOptions(options) {
 		setOptions("remote", options);
 		writeTimeout = null;
 	}, 1000)
+}
+
+const suffixesToRemove = [
+	" - topic",
+	"vevo",
+	" (performance video)",
+	" (clip officiel)",
+	" (epic trailer version)",
+	" (trailer version"
+];
+
+function cleanupName(name) {
+	if (!name) return name;
+	name = name.replace(/\((?:official)?[ ]?(?:music)?[ ]?(?:lyric[s]?)?[ ]?(?:video)?\)$/i, '')
+	const lowCaseName = name.toLowerCase();
+	for (const suffix of suffixesToRemove) {
+		if (lowCaseName.endsWith(suffix)) {
+			return name.slice(0, -suffix.length);
+		}
+	}
+	return name;
 }
