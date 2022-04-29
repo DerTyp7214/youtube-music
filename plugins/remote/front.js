@@ -22,6 +22,13 @@ module.exports = (options) => {
 		ipcRenderer.on('playQueueItemById', (_, videoId) => {
 			playQueueItemById(videoId)
 		})
+
+		const observer = new MutationObserver(() => {
+			ipcRenderer.send('returnQueue', getQueue())
+		})
+
+
+		observer.observe(getQueueWrapper(), {attributes: true, childList: true})
 	})
 }
 
@@ -37,13 +44,18 @@ function playQueueItemById(videoId) {
 	$(`[videoid="${videoId}"] ytmusic-play-button-renderer`)?.click()
 }
 
-function getQueueElements() {
+function getQueueWrapper() {
 	const queueWrapper = $('ytmusic-tab-renderer #contents.ytmusic-player-queue')
 	const queueWrapper2 = $('#contents.ytmusic-player-queue')
 
-	if (!queueWrapper && !queueWrapper2) return []
+	return queueWrapper ?? queueWrapper2
+}
 
-	return [...(queueWrapper ?? queueWrapper2).querySelectorAll(':scope > ytmusic-player-queue-item, #primary-renderer>ytmusic-player-queue-item')]
+function getQueueElements() {
+	const queueWrapper = getQueueWrapper()
+	if (!queueWrapper) return []
+
+	return [...queueWrapper.querySelectorAll(':scope > ytmusic-player-queue-item, #primary-renderer>ytmusic-player-queue-item')]
 }
 
 function getQueue() {
