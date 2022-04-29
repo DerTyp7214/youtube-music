@@ -75,7 +75,7 @@ function getQueue() {
 
 		return {
 			title: cleanupName(title.runs[0].text),
-			artist: shortBylineText.runs[0].text,
+			artist: shortBylineText.runs.map(item => item.text).join(''),
 			image: thumbnail.thumbnails[thumbnail.thumbnails.length - 1].url,
 			duration: lengthText.runs[0].text,
 			videoId
