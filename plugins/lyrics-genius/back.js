@@ -18,9 +18,9 @@ module.exports = async (win) => {
 };
 
 const fetchFromGenius = async (metadata) => {
-	const queryString = `${cleanupName(metadata.artist)} ${cleanupName(
+	const queryString = `${cleanupName(
 		metadata.title
-	)}`;
+	)} by ${cleanupName(metadata.artist)}`;
 	let response = await fetch(
 		`https://genius.com/api/search/multi?per_page=5&q=${encodeURI(queryString)}`
 	);

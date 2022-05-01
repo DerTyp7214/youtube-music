@@ -4,6 +4,7 @@ const {WebSocketServer} = require('ws')
 const getSongControls = require('../../providers/song-controls');
 const registerCallback = require("../../providers/song-info");
 const {hasJsonStructure} = require("../utils");
+const {fetchFromGenius} = require("../lyrics-genius/back");
 
 let port = 8080
 
@@ -95,6 +96,15 @@ function connected(ws, win) {
 				case 'requestQueue':
 					win.webContents.send('requestQueue')
 					break;
+				case 'requestLyrics':
+					fetchFromGenius({
+						title: currentSongInfo.title,
+						artist: currentSongInfo.artist,
+					}).then(lyrics => {
+						if (lyrics && lyrics.length) ws.send(JSON.stringify({action: 'lyrics', data: {lyrics}}))
+					})
+					break;
+
 				case 'search':
 					if (json.data) {
 						const {query} = json.data
