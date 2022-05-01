@@ -23,6 +23,14 @@ module.exports = (options) => {
 			playQueueItemById(videoId)
 		})
 
+		ipcRenderer.on('search', (_, query) => {
+			const input = $('input.ytmusic-search-box')
+			input.value = query
+			input.dispatchEvent(new KeyboardEvent('keypress', {
+				bubbles: true, cancelable: true, keyCode: 13
+			}))
+		})
+
 		const observer = new MutationObserver(() => {
 			ipcRenderer.send('returnQueue', getQueue())
 		})

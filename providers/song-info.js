@@ -130,6 +130,15 @@ const registerProvider = (win) => {
 		callbacks.forEach((c) => {
 			c(songInfo)
 		})
+
+		if (win) {
+			const progress = 1 / Number(songInfo.songDuration) * Number(songInfo.elapsedSeconds)
+			if (process.platform === 'win32') {
+				win.setProgressBar(progress, {
+					mode: songInfo.isPaused ? 'paused' : 'normal'
+				})
+			} else win.setProgressBar(progress)
+		}
 	})
 	ipcMain.on("frontVolumeChange", (_, {volume, isMuted}) => {
 		songInfo.volume = volume

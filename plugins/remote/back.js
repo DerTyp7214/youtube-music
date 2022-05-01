@@ -95,6 +95,13 @@ function connected(ws, win) {
 				case 'requestQueue':
 					win.webContents.send('requestQueue')
 					break;
+				case 'search':
+					if (json.data) {
+						const {query} = json.data
+
+						controls.search()
+						win.webContents.send('search', query)
+					}
 			}
 		}
 	})
