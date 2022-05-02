@@ -383,7 +383,7 @@ app.on("ready", () => {
 		}, 2000);
 		autoUpdater.on("update-available", () => {
 			const downloadLink =
-				"https://github.com/th-ch/youtube-music/releases/latest";
+				"https://github.com/DerTyp7214/youtube-music/releases/latest";
 			const dialogOpts = {
 				type: "info",
 				buttons: ["OK", "Download", "Disable updates"],

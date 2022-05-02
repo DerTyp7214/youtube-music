@@ -1,17 +1,20 @@
 {
 	"name": "youtube-music",
 	"productName": "YouTube Music",
-	"version": "1.16.5",
+	"version": "1.16.6",
 	"description": "YouTube Music Desktop App - including custom plugins",
 	"license": "MIT",
-	"repository": "DerTyp7214/youtube-music",
+	"repository": {
+	  "type": "git",
+	  "url": "https://github.com/DerTyp7214/youtube-music"
+	},
 	"author": {
-		"name": "th-ch",
-		"email": "th-ch@users.noreply.github.com",
+		"name": "dertyp7214",
+		"email": "dertyp7214@users.noreply.github.com",
 		"url": "https://github.com/DerTyp7214/youtube-music"
 	},
 	"build": {
-		"appId": "com.github.th-ch.youtube-music",
+		"appId": "com.github.dertyp7214.youtube-music",
 		"productName": "YouTube Music",
 		"mac": {
 			"identity": null,
