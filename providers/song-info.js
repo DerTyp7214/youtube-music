@@ -153,9 +153,11 @@ const suffixesToRemove = [
 	" - topic",
 	"vevo",
 	" (performance video)",
-	" (clip officiel)",
+	" (clip official)",
+	" (official audio)",
+	" (remix)",
 	" (epic trailer version)",
-	" (trailer version",
+	" (trailer version)",
 	" [bonus track]",
 	" [clean]"
 ];
@@ -163,8 +165,8 @@ const suffixesToRemove = [
 function cleanupName(name) {
 	if (!name) return name;
 	const index = name.indexOf('(feat.')
-	if (index > 0) name = name.slice(0, index)
-	name = name.replace(/\((?:official)?[ ]?(?:music)?[ ]?(?:lyric[s]?)?[ ]?(?:video)?[ ]?(?:radio)?[ ]?(?:edit)?[ ]?(?:single)?(?:version)?[ ]?[ ]?(?:remastered [0-9]{0,})?[ ]?(?:offizielles)?[ ]?(?:musikvideo)?\)$/i, '')
+	if (index > 0) name = name.slice(0, index).trimEnd()
+	name = name.replace(/\((?:official)?[ ]?(?:music)?[ ]?(?:lyric[s]?)?[ ]?(?:video)?[ ]?(?:radio)?[ ]?(?:edit)?[ ]?(?:single)?[ ]?(?:version)?[ ]?(?:remastered [0-9]{0,})?[ ]?(?:offizielles)?[ ]?(?:musikvideo)?\)$/i, '')
 	const lowCaseName = name.toLowerCase();
 	for (const suffix of suffixesToRemove) {
 		if (lowCaseName.endsWith(suffix)) {
