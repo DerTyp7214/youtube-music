@@ -104,6 +104,9 @@ function connected(ws, win) {
 						if (lyrics && lyrics.length) ws.send(JSON.stringify({action: 'lyrics', data: {lyrics}}))
 					})
 					break;
+				case 'requestSongInfo':
+					ws.send(JSON.stringify({action: 'songInfo', data: currentSongInfo}))
+					break;
 
 				case 'search':
 					if (json.data) {
