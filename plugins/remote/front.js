@@ -1,5 +1,6 @@
 const {ipcRenderer} = require("electron");
 const {setOptions} = require("../../config/plugins");
+const {cleanupName} = require("../../providers/song-info");
 
 function $(selector) {
 	return document.querySelector(selector);
@@ -118,25 +119,4 @@ function writeOptions(options) {
 		setOptions("remote", options);
 		writeTimeout = null;
 	}, 1000)
-}
-
-const suffixesToRemove = [
-	" - topic",
-	"vevo",
-	" (performance video)",
-	" (clip officiel)",
-	" (epic trailer version)",
-	" (trailer version"
-];
-
-function cleanupName(name) {
-	if (!name) return name;
-	name = name.replace(/\((?:official)?[ ]?(?:music)?[ ]?(?:lyric[s]?)?[ ]?(?:video)?\)$/i, '')
-	const lowCaseName = name.toLowerCase();
-	for (const suffix of suffixesToRemove) {
-		if (lowCaseName.endsWith(suffix)) {
-			return name.slice(0, -suffix.length);
-		}
-	}
-	return name;
 }
