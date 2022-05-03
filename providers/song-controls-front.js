@@ -5,7 +5,6 @@ const is = require("electron-is");
 module.exports.setupSongControls = () => {
     document.addEventListener('apiLoaded', e => {
         ipcRenderer.on("seekTo", (_, t) => {
-			console.log(t)
 			e.detail.seekTo(t)
 		});
         ipcRenderer.on("seekBy", (_, t) => e.detail.seekBy(t));

@@ -40,7 +40,7 @@ module.exports = () => {
 			video.addEventListener(status, e => {
 				if (Math.round(e.target.currentTime) > 0) {
 					ipcRenderer.send("playPaused", {
-						isPaused: status === 'pause',
+						isPaused: video.paused,
 						elapsedSeconds: progress.value,
 						fields: parseClickableLinks()
 					});
