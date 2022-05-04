@@ -1,19 +1,6 @@
-const ColorThief = require('colorthief')
+const Vibrant = require('node-vibrant/dist/vibrant')
 
 const $ = (s, d) => (d ?? document).querySelector(s)
-
-function getColorFromImage(img) {
-	const context = document.createElement('canvas').getContext('2d')
-	if (typeof img == 'string') {
-		const src = img
-		img = new Image()
-		img.setAttribute('crossOrigin', 'Anonymous')
-		img.src = src
-	} else img.setAttribute('crossOrigin', 'Anonymous')
-	context.imageSmoothingEnabled = true
-	context.drawImage(img, 0, 0, 1, 1)
-	return context.getImageData(0, 0, 1, 1).data.slice(0, 3)
-}
 
 module.exports = () => {
 	document.addEventListener('apiLoaded', apiEvent => {
@@ -21,9 +8,10 @@ module.exports = () => {
 		const image = $('img', imageWrapper)
 
 		const css = color => `display:block;border-radius:23px;border: 2px solid ${color};box-shadow: 0px 0px 8px 0px ${color};`
-		const rgbToHex = (rgb) => '#' + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1)
-		const addStyle = (image, imageWrapper) => imageWrapper.style = css(rgbToHex(getColorFromImage(image)))
+		const rgbToHex = (rgb) => '#' + ((1 << 24) + (Math.floor(rgb[0]) << 16) + (Math.floor(rgb[1]) << 8) + Math.floor(rgb[2])).toString(16).slice(1)
+		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => imageWrapper.style = css(rgbToHex(palette.Vibrant.rgb))).catch(console.log)
 
+		image.setAttribute('crossOrigin', 'Anonymous')
 		if (image.complete) addStyle(image, imageWrapper)
 		image.addEventListener('load', () => {
 			addStyle(image, imageWrapper)
