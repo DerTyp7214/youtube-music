@@ -7,9 +7,23 @@ module.exports = () => {
 		const imageWrapper = $('#player')
 		const image = $('img', imageWrapper)
 
+		const style = document.createElement('style')
+		document.head.append(style)
+
 		const css = color => `display:block;border-radius:23px;border: 2px solid ${color};box-shadow: 0px 0px 8px 0px ${color};`
 		const rgbToHex = (rgb) => '#' + ((1 << 24) + (Math.floor(rgb[0]) << 16) + (Math.floor(rgb[1]) << 8) + Math.floor(rgb[2])).toString(16).slice(1)
-		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => imageWrapper.style = css(rgbToHex(palette.Vibrant.rgb))).catch(console.log)
+		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => {
+			const color = rgbToHex(palette.Vibrant.rgb)
+			style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
+				--paper-slider-knob-color: ${color};
+				--paper-slider-knob-start-color: ${color};
+				--paper-slider-knob-start-border-color: ${color};
+			}
+			#progress-bar.ytmusic-player-bar {
+				--paper-slider-active-color: ${color};
+			}`
+			imageWrapper.style = css(color)
+		}).catch(console.log)
 
 		image.setAttribute('crossOrigin', 'Anonymous')
 		if (image.complete) addStyle(image, imageWrapper)
