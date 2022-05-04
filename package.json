@@ -1,12 +1,12 @@
 {
 	"name": "youtube-music",
 	"productName": "YouTube Music",
-	"version": "1.16.6",
+	"version": "1.16.7",
 	"description": "YouTube Music Desktop App - including custom plugins",
 	"license": "MIT",
 	"repository": {
-	  "type": "git",
-	  "url": "https://github.com/DerTyp7214/youtube-music"
+		"type": "git",
+		"url": "https://github.com/DerTyp7214/youtube-music"
 	},
 	"author": {
 		"name": "dertyp7214",
@@ -103,6 +103,7 @@
 		"async-mutex": "^0.3.2",
 		"browser-id3-writer": "^4.4.0",
 		"chokidar": "^3.5.3",
+		"colorthief": "^2.3.2",
 		"custom-electron-prompt": "^1.4.1",
 		"custom-electron-titlebar": "^4.1.0",
 		"discord-rpc": "^4.0.1",
