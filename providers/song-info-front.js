@@ -39,21 +39,25 @@ module.exports = () => {
 		for (const status of ['playing', 'pause']) {
 			video.addEventListener(status, e => {
 				if (Math.round(e.target.currentTime) > 0) {
-					ipcRenderer.send("playPaused", {
+					const args = {
 						isPaused: video.paused,
 						elapsedSeconds: progress.value,
 						fields: parseClickableLinks()
-					});
+					}
+					if (window.debug) console.log('playPaused', args)
+					ipcRenderer.send("playPaused", args);
 				}
 			});
 		}
 
 		const observer = new MutationObserver(() => {
-			ipcRenderer.send("playerStatus", {
+			const args = {
 				isLiked: like.ariaPressed === 'true',
 				isDisliked: dislike.ariaPressed === 'true',
 				repeatMode: repeat.repeatMode_
-			})
+			}
+			if (window.debug) console.log('playerStatus', args)
+			ipcRenderer.send("playerStatus", args)
 		})
 
 		observer.observe(like, {attributes: true, attributeFilter: ['aria-pressed']})
@@ -61,12 +65,14 @@ module.exports = () => {
 		observer.observe(repeat, {attributes: true, attributeFilter: ['repeat-mode_']})
 
 		const progressObserver = new MutationObserver(mutations => {
-			ipcRenderer.send("elapsedSecondsChanged", {
+			const args = {
 				elapsedSeconds: mutations[0].target.value,
 				volume: apiEvent.detail.getVolume(),
 				fields: parseClickableLinks(),
-				isPaused: video.paused
-			})
+				isPaused: $('video').paused
+			}
+			if (window.debug) console.log('elapsedSecondsChanged', args)
+			ipcRenderer.send("elapsedSecondsChanged", args)
 		});
 
 		progressObserver.observe(progress, {attributeFilter: ["value"]})
@@ -74,10 +80,11 @@ module.exports = () => {
 		let interval = setInterval(() => {
 			const volume = apiEvent.detail.getVolume()
 			const isMuted = apiEvent.detail.isMuted()
-			if (global.songInfo.volume !== volume || global.songInfo.isMuted !== isMuted) ipcRenderer.send('frontVolumeChange', {
-				volume,
-				isMuted
-			})
+			if (global.songInfo.volume !== volume || global.songInfo.isMuted !== isMuted) {
+				const args = {volume, isMuted}
+				if (window.debug) console.log('frontVolumeChange', args)
+				ipcRenderer.send('frontVolumeChange', args)
+			}
 			global.songInfo.volume = volume
 			global.songInfo.isMuted = isMuted
 		}, 100)
@@ -103,6 +110,7 @@ module.exports = () => {
 			data.videoDetails.elapsedSeconds = Math.floor(video.currentTime);
 			data.videoDetails.isPaused = video.paused;
 			data.videoDetails.fields = parseClickableLinks()
+			if (window.debug) console.log('video-src-changed', data)
 			ipcRenderer.send("video-src-changed", JSON.stringify(data));
 		}
 	}, {once: true, passive: true});
@@ -110,8 +118,10 @@ module.exports = () => {
 
 function setupTimeChangeListener() {
 	const progressObserver = new MutationObserver(mutations => {
-		ipcRenderer.send('timeChanged', mutations[0].target.value);
-		global.songInfo.elapsedSeconds = mutations[0].target.value;
+		const elapsedSeconds = mutations[0].target.value
+		if (window.debug) console.log('timeChanged', elapsedSeconds)
+		ipcRenderer.send('timeChanged', elapsedSeconds);
+		global.songInfo.elapsedSeconds = elapsedSeconds;
 	});
 	progressObserver.observe($('#progress-bar'), {attributeFilter: ["value"]})
 }
