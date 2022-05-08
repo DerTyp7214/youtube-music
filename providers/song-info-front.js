@@ -27,7 +27,7 @@ module.exports = () => {
 		// name = "dataloaded" and abit later "dataupdated"
 		apiEvent.detail.addEventListener('videodatachange', (name, _dataEvent) => {
 			if (name !== 'dataloaded') return;
-			video.dispatchEvent(srcChangedEvent);
+			$('video').dispatchEvent(srcChangedEvent);
 			sendSongInfo();
 		})
 
@@ -40,7 +40,7 @@ module.exports = () => {
 			video.addEventListener(status, e => {
 				if (Math.round(e.target.currentTime) > 0) {
 					const args = {
-						isPaused: video.paused,
+						isPaused: $('video').paused,
 						elapsedSeconds: progress.value,
 						fields: parseClickableLinks()
 					}
@@ -102,6 +102,8 @@ module.exports = () => {
 
 		function sendSongInfo() {
 			const data = apiEvent.detail.getPlayerResponse();
+
+			const video = $('video')
 
 			data.videoDetails.album = $$(
 				".byline.ytmusic-player-bar > .yt-simple-endpoint"
