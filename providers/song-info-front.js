@@ -23,7 +23,6 @@ module.exports = () => {
 			(is.linux() && config.plugins.isEnabled('shortcuts'))) {
 			setupTimeChangeListener();
 		}
-		const video = $('video');
 		// name = "dataloaded" and abit later "dataupdated"
 		apiEvent.detail.addEventListener('videodatachange', (name, _dataEvent) => {
 			if (name !== 'dataloaded') return;
@@ -36,19 +35,17 @@ module.exports = () => {
 		const repeat = $('ytmusic-player-bar.ytmusic-app')
 		const progress = $('#progress-bar')
 
-		for (const status of ['playing', 'pause']) {
-			video.addEventListener(status, e => {
-				if (Math.round(e.target.currentTime) > 0) {
-					const args = {
-						isPaused: $('video').paused,
-						elapsedSeconds: progress.value,
-						fields: parseClickableLinks()
-					}
-					if (window.debug) console.log('playPaused', args)
-					ipcRenderer.send("playPaused", args);
-				}
-			});
-		}
+		const playPauseObserver = new MutationObserver(() => {
+			const args = {
+				isPaused: $('video').paused,
+				elapsedSeconds: progress.value,
+				fields: parseClickableLinks()
+			}
+			if (window.debug) console.log('playPaused', args)
+			ipcRenderer.send("playPaused", args);
+		})
+
+		playPauseObserver.observe($('#play-pause-button'), {attributes: true, attributeFilter: ['aria-label']})
 
 		const observer = new MutationObserver(() => {
 			const args = {
