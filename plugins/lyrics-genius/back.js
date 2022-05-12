@@ -1,12 +1,14 @@
-const { join } = require("path");
+const {join} = require("path");
 
-const { ipcMain } = require("electron");
+const {ipcMain} = require("electron");
 const is = require("electron-is");
-const { convert } = require("html-to-text");
+const {convert} = require("html-to-text");
 const fetch = require("node-fetch");
 
-const { cleanupName } = require("../../providers/song-info");
-const { injectCSS } = require("../utils");
+const {cleanupName} = require("../../providers/song-info");
+const {injectCSS} = require("../utils");
+
+let lastLyrics = {}
 
 module.exports = async (win) => {
 	injectCSS(win.webContents, join(__dirname, "style.css"));
@@ -21,6 +23,9 @@ const fetchFromGenius = async (metadata) => {
 	const queryString = `${cleanupName(
 		metadata.title
 	)} by ${cleanupName(metadata.artist)}`;
+
+	if (lastLyrics.queryString === queryString && lastLyrics.lyrics) return lastLyrics.lyrics
+
 	let response = await fetch(
 		`https://genius.com/api/search/multi?per_page=5&q=${encodeURI(queryString)}`
 	);
@@ -64,6 +69,9 @@ const fetchFromGenius = async (metadata) => {
 			},
 		},
 	});
+
+	lastLyrics.lyrics = lyrics
+	lastLyrics.queryString = queryString
 
 	return lyrics;
 };

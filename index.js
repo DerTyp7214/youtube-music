@@ -432,7 +432,7 @@ app.on("ready", () => {
 			if (!forceQuit) {
 				event.preventDefault();
 				mainWindow.hide();
-			}
+			} else mainWindow.webContents.send('close')
 		});
 	}
 });

@@ -27,6 +27,10 @@ module.exports = (win) => {
 			ws.send(JSON.stringify({action: 'queue', data: queue}))
 		})
 	})
+
+	ipcMain.on('close', () => {
+		wss.close()
+	})
 }
 
 function connected(ws, win) {

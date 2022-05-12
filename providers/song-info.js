@@ -27,7 +27,8 @@ const songInfo = {
 	repeatMode: "NONE",
 	fields: [],
 	volume: 0,
-	isMuted: false
+	isMuted: false,
+	action: "default"
 };
 
 // Grab the native image using the src
@@ -96,41 +97,7 @@ const registerCallback = (callback) => {
 let handlingData = false;
 
 const registerProvider = (win) => {
-	// This will be called when the song-info-front finds a new request with song data
-	ipcMain.on("video-src-changed", async (_, responseText) => {
-		handlingData = true;
-		await handleData(responseText, win);
-		handlingData = false;
-		callbacks.forEach((c) => {
-			c(songInfo);
-		});
-	});
-	ipcMain.on("playPaused", (_, {isPaused, elapsedSeconds, fields}) => {
-		songInfo.isPaused = isPaused;
-		songInfo.elapsedSeconds = elapsedSeconds;
-		songInfo.fields = fields
-		if (handlingData) return;
-		callbacks.forEach((c) => {
-			c(songInfo);
-		});
-	})
-	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode}) => {
-		songInfo.liked = isLiked
-		songInfo.disliked = isDisliked
-		songInfo.repeatMode = repeatMode
-		callbacks.forEach((c) => {
-			c(songInfo)
-		})
-	})
-	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds, volume, fields, isPaused}) => {
-		songInfo.elapsedSeconds = elapsedSeconds
-		songInfo.volume = volume
-		songInfo.fields = fields
-		songInfo.isPaused = isPaused
-		callbacks.forEach((c) => {
-			c(songInfo)
-		})
-
+	const updateProgress = () => {
 		if (win) {
 			const progress = 1 / Number(songInfo.songDuration) * Number(songInfo.elapsedSeconds)
 			if (process.platform === 'win32') {
@@ -139,12 +106,49 @@ const registerProvider = (win) => {
 				})
 			} else win.setProgressBar(progress)
 		}
+	}
+	// This will be called when the song-info-front finds a new request with song data
+	ipcMain.on("video-src-changed", async (_, responseText) => {
+		handlingData = true;
+		await handleData(responseText, win);
+		handlingData = false;
+		callbacks.forEach((c) => {
+			c({...songInfo, action: 'video-src-changed'});
+		});
+	});
+	ipcMain.on("playPaused", (_, {isPaused, elapsedSeconds, fields}) => {
+		songInfo.isPaused = isPaused;
+		songInfo.elapsedSeconds = elapsedSeconds;
+		songInfo.fields = fields
+		if (handlingData) return;
+		callbacks.forEach((c) => {
+			c({...songInfo, action: 'playPaused'});
+		});
+		updateProgress()
+	})
+	ipcMain.on("playerStatus", (_, {isLiked, isDisliked, repeatMode}) => {
+		songInfo.liked = isLiked
+		songInfo.disliked = isDisliked
+		songInfo.repeatMode = repeatMode
+		callbacks.forEach((c) => {
+			c({...songInfo, action: 'playerStatus'})
+		})
+	})
+	ipcMain.on("elapsedSecondsChanged", (_, {elapsedSeconds, volume, fields, isPaused}) => {
+		songInfo.elapsedSeconds = elapsedSeconds
+		songInfo.volume = volume
+		songInfo.fields = fields
+		songInfo.isPaused = isPaused
+		callbacks.forEach((c) => {
+			c({...songInfo, action: 'elapsedSecondsChanged'})
+		})
+		updateProgress()
 	})
 	ipcMain.on("frontVolumeChange", (_, {volume, isMuted}) => {
 		songInfo.volume = volume
 		songInfo.isMuted = isMuted
 		callbacks.forEach((c) => {
-			c(songInfo)
+			c({...songInfo, action: 'volumeChange'})
 		})
 	})
 };
