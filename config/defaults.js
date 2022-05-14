@@ -22,6 +22,18 @@ const defaultConfig = {
 		navigation: {
 			enabled: true,
 		},
+		"blur-all": {
+			enabled: true,
+		},
+		"blur-nav-bar": {
+			enabled: true,
+		},
+		remote: {
+			enabled: true,
+		},
+		"taskbar-mediacontrol": {
+			enabled: true,
+		},
 		adblocker: {
 			enabled: true,
 			cache: true,
@@ -53,7 +65,7 @@ const defaultConfig = {
 		notifications: {
 			enabled: false,
 			unpauseNotification: false,
-			urgency: "normal", //has effect only on Linux 
+			urgency: "normal", //has effect only on Linux
 			interactive: false //has effect only on Windows
 		},
 		"precise-volume": {
@@ -67,7 +79,7 @@ const defaultConfig = {
 			savedVolume: undefined //plugin save volume between session here
 		},
 		sponsorblock: {
-			enabled: false,
+			enabled: true,
 			apiURL: "https://sponsor.ajay.app",
 			categories: [
 				"sponsor",
