@@ -36,8 +36,8 @@ module.exports = (options) => {
 			addQueueItemToQueue(videoId)
 		})
 
-		ipcRenderer.on('removeQueueItemFromQueue', (_, videoId) => {
-			removeQueueItemFromQueue(videoId)
+		ipcRenderer.on('removeQueueItemFromQueue', (_, {videoId, position}) => {
+			removeQueueItemFromQueue(videoId, position)
 		})
 
 		ipcRenderer.on('search', (_, query) => {
@@ -89,36 +89,39 @@ function observeContextMenu(target, callback) {
 	observer.observe(element, {subtree: true, childList: true})
 }
 
-function findContextServiceItem(contextMenu, titleInLower) {
+async function findContextServiceItem(contextMenu, titleInLower, trys, wait) {
+	if (wait) await new Promise(res => setTimeout(res, 100))
 	const items = $$(contextMenu, 'tp-yt-paper-listbox ytmusic-menu-service-item-renderer')
-	return [...items].find(item => item.querySelector('yt-formatted-string').innerText.toLowerCase().trim() === titleInLower)
+	const filtered = [...items].find(item => item.querySelector('yt-formatted-string').innerText.toLowerCase().trim() === titleInLower)
+	return filtered || trys === 0 ? filtered : await findContextServiceItem(contextMenu, titleInLower, trys - 1, true)
 }
 
 function playQueueItemNext(videoId) {
 	const element = $(`[videoid="${videoId}"]`)
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'play next', 5).then(item => item?.click())
+	})
 	rightClick(element)
 	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
-	observeContextMenu('ytmusic-popup-container', contextMenu => {
-		findContextServiceItem(contextMenu, 'play next')?.click()
-	})
 }
 
 function addQueueItemToQueue(videoId) {
 	const element = $(`[videoid="${videoId}"]`)
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'add to queue', 5).then(item => item?.click())
+	})
 	rightClick(element)
 	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
-	observeContextMenu('ytmusic-popup-container', contextMenu => {
-		findContextServiceItem(contextMenu, 'add to queue')?.click()
-	})
 }
 
-function removeQueueItemFromQueue(videoId) {
-	const element = $(`[videoid="${videoId}"]`)
+function removeQueueItemFromQueue(videoId, position) {
+	const element = $$(document, `[videoid="${videoId}"]`)[position]
+	console.log($$(document, `[videoid="${videoId}"]`), position, element)
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'remove from queue', 5).then(item => item?.click())
+	})
 	rightClick(element)
 	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
-	observeContextMenu('ytmusic-popup-container', contextMenu => {
-		findContextServiceItem(contextMenu, 'remove from queue')?.click()
-	})
 }
 
 function getQueueWrapper() {
@@ -139,7 +142,7 @@ function getQueue() {
 	const items = getQueueElements()
 	const currentPlayIndex = items.findIndex(item => item.hasAttribute('selected'))
 
-	return items.splice(currentPlayIndex, items.length - currentPlayIndex).map(item => {
+	const mapped = items.splice(currentPlayIndex, items.length - currentPlayIndex).map(item => {
 		const {
 			lengthText,
 			shortBylineText,
@@ -155,9 +158,15 @@ function getQueue() {
 			artist: shortBylineText.runs.map(item => item.text).join(''),
 			image: thumbnail.thumbnails[thumbnail.thumbnails.length - 1].url,
 			duration: lengthText.runs[0].text,
-			videoId
+			videoId,
+			position: 0
 		}
 	})
+	mapped.forEach(item => {
+		const tmp = mapped.filter(i => i.videoId === item.videoId)[item.position + 1]
+		if (tmp) tmp.position = item.position + 1
+	})
+	return mapped
 }
 
 function saveVolume(volume, options) {

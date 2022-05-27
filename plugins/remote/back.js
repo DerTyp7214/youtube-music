@@ -113,9 +113,9 @@ function connected(ws, win) {
 					break;
 				case 'removeQueueItemFromQueue':
 					if (json.data) {
-						const {videoId} = json.data
+						const {videoId, position} = json.data
 
-						win.webContents.send('removeQueueItemFromQueue', videoId)
+						win.webContents.send('removeQueueItemFromQueue', {videoId, position})
 					}
 					break;
 				case 'requestQueue':
