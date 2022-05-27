@@ -97,6 +97,27 @@ function connected(ws, win) {
 						win.webContents.send('playQueueItemById', videoId)
 					}
 					break;
+				case 'playQueueItemNext':
+					if (json.data) {
+						const {videoId} = json.data
+
+						win.webContents.send('playQueueItemNext', videoId)
+					}
+					break;
+				case 'addQueueItemToQueue':
+					if (json.data) {
+						const {videoId} = json.data
+
+						win.webContents.send('addQueueItemToQueue', videoId)
+					}
+					break;
+				case 'removeQueueItemFromQueue':
+					if (json.data) {
+						const {videoId} = json.data
+
+						win.webContents.send('removeQueueItemFromQueue', videoId)
+					}
+					break;
 				case 'requestQueue':
 					win.webContents.send('requestQueue')
 					break;
