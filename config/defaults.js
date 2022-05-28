@@ -92,6 +92,7 @@ const defaultConfig = {
 		},
 		"video-toggle": {
 			enabled: false,
+			mode: "custom",
 			forceHide: false,
 		},
 	},
