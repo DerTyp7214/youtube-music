@@ -28,6 +28,10 @@ module.exports = (options) => {
 			playQueueItemById(videoId)
 		})
 
+		ipcRenderer.on('startQueueItemRadio', (_, videoId) => {
+			startQueueItemRadio(videoId)
+		})
+
 		ipcRenderer.on('playQueueItemNext', (_, videoId) => {
 			playQueueItemNext(videoId)
 		})
@@ -89,11 +93,28 @@ function observeContextMenu(target, callback) {
 	observer.observe(element, {subtree: true, childList: true})
 }
 
-async function findContextServiceItem(contextMenu, titleInLower, trys, wait) {
+async function findContextItem(itemType, contextMenu, titleInLower, trys, wait) {
 	if (wait) await new Promise(res => setTimeout(res, 100))
-	const items = $$(contextMenu, 'tp-yt-paper-listbox ytmusic-menu-service-item-renderer')
+	const items = $$(contextMenu, 'tp-yt-paper-listbox ' + itemType)
 	const filtered = [...items].find(item => item.querySelector('yt-formatted-string').innerText.toLowerCase().trim() === titleInLower)
-	return filtered || trys === 0 ? filtered : await findContextServiceItem(contextMenu, titleInLower, trys - 1, true)
+	return filtered || trys === 0 ? filtered : await findContextItem(itemType, contextMenu, titleInLower, trys - 1, true)
+}
+
+async function findContextServiceItem(contextMenu, titleInLower, trys) {
+	return await findContextItem('ytmusic-menu-service-item-renderer', contextMenu, titleInLower, trys)
+}
+
+async function findContextNavigationItem(contextMenu, titleInLower, trys) {
+	return await findContextItem('ytmusic-menu-navigation-item-renderer a', contextMenu, titleInLower, trys)
+}
+
+function startQueueItemRadio(videoId) {
+	const element = $(`[videoid="${videoId}"]`)
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextNavigationItem(contextMenu, 'start radio', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
 }
 
 function playQueueItemNext(videoId) {
@@ -116,7 +137,6 @@ function addQueueItemToQueue(videoId) {
 
 function removeQueueItemFromQueue(videoId, position) {
 	const element = $$(document, `[videoid="${videoId}"]`)[position]
-	console.log($$(document, `[videoid="${videoId}"]`), position, element)
 	observeContextMenu('ytmusic-popup-container', contextMenu => {
 		findContextServiceItem(contextMenu, 'remove from queue', 5).then(item => item?.click())
 	})
