@@ -26,6 +26,9 @@ module.exports = (win) => {
 		ipcMain.on('returnQueue', (_, queue) => {
 			ws.send(JSON.stringify({action: 'queue', data: queue}))
 		})
+		ipcMain.on('audioData', (_, audioData) => {
+			ws.send(JSON.stringify({action: 'audioData', data: audioData}))
+		})
 	})
 
 	ipcMain.on('close', () => {
