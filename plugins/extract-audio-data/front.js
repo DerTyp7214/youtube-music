@@ -44,7 +44,7 @@ module.exports = () => {
 			function fullData() {
 				requestAnimationFrame(fullData)
 
-				const color = window.getComputedStyle(document.body, null).getPropertyValue('--vibrant-cover-color')
+				const color = window.getComputedStyle(document.body, null).getPropertyValue('--light-vibrant-cover-color')
 
 				if (!document.querySelector('ytmusic-player canvas')) {
 					canvas.width = player.clientWidth

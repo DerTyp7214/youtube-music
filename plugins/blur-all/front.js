@@ -14,6 +14,8 @@ module.exports = () => {
 		const rgbToHex = (rgb) => '#' + ((1 << 24) + (Math.floor(rgb[0]) << 16) + (Math.floor(rgb[1]) << 8) + Math.floor(rgb[2])).toString(16).slice(1)
 		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => {
 			const color = rgbToHex(palette.Vibrant.rgb)
+			const colorDark = rgbToHex(palette.DarkVibrant.rgb)
+			const colorLight = rgbToHex(palette.LightVibrant.rgb)
 			style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
 				--paper-slider-knob-color: ${color};
 				--paper-slider-knob-start-color: ${color};
@@ -25,6 +27,8 @@ module.exports = () => {
 
 			body {
 				--vibrant-cover-color: ${color};
+				--dark-vibrant-cover-color: ${colorDark};
+				--light-vibrant-cover-color: ${colorLight};
 			}`
 			imageWrapper.style = css(color)
 		}).catch(console.log)
