@@ -2,20 +2,26 @@ const {ipcRenderer} = require('electron')
 
 const $ = s => document.querySelector(s)
 
-const fftSize = 128
+const fftSize = 256
+const sampleRate = 24000
+
 const barCount = fftSize / 2
 
-const manipulators = [
-	.7, .72, .76, .8, .8, .8, .8, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9, .9,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.8, 1.8, 1.8, 1.8, 1.12, 1.12, 1.12, 1.12, 1.16, 1.16, 1.2, 1.2,
-]
+const manipulators = _createCurve([.7, .75, .8, .9, .95, 1, 1.1, 1.15], barCount)
+
+function _createCurve(manipulator, count) {
+	const times = count / manipulator.length
+	if (times < 1) return manipulator
+	const curve = []
+	for (let i = 0; i < manipulator.length; i++) for (let j = 0; j < times; j++) curve.push(
+		curve.length > 0 ? (curve[curve.length - 1] + manipulator[i] + .000001) / 2 : manipulator[i]
+	)
+	return curve
+}
 
 module.exports = () => {
-	document.addEventListener('apiLoaded', apiEvent => {
+	document.addEventListener('apiLoaded', () => {
 		let isMuted = false
-
-		const sampleRate = 20000
 
 		const audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate})
 
@@ -117,7 +123,7 @@ module.exports = () => {
 					const data = cleanData(Array.from(dataArray))
 					if (data) {
 						for (let i = 0; i < data.length; i++) {
-							data[i] = Math.floor(data[i] * manipulators?.[i] ?? 1)
+							data[i] = Math.floor(data[i] * (manipulators?.[i] ?? 1))
 						}
 						ipcRenderer.send('audioData', data)
 					}
@@ -146,20 +152,6 @@ module.exports = () => {
 				isMuted = true
 				return data
 			}
-		}
-
-		function makeDistortionCurve(amount) {
-			let k = typeof amount === 'number' ? amount : 50,
-				n_samples = 44100,
-				curve = new Float32Array(n_samples),
-				deg = Math.PI / 180,
-				i = 0,
-				x
-			for (; i < n_samples; ++i) {
-				x = i * 2 / n_samples - 1
-				curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x))
-			}
-			return curve
 		}
 	})
 }
