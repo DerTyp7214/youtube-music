@@ -21,6 +21,10 @@ module.exports = () => {
 			}
 			#progress-bar.ytmusic-player-bar {
 				--paper-slider-active-color: ${color};
+			}
+
+			body {
+				--vibrant-cover-color: ${color};
 			}`
 			imageWrapper.style = css(color)
 		}).catch(console.log)
