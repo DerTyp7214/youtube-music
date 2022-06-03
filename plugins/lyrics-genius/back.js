@@ -51,6 +51,7 @@ const fetchFromGenius = async (metadata) => {
 
 	if (is.dev()) console.log("Fetching lyrics from Genius:", url)
 
+	if (url === '') return null
 	response = await fetch(url)
 	if (!response.ok) return null
 
