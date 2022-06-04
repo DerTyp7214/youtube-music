@@ -44,12 +44,35 @@ module.exports = (options) => {
 			removeQueueItemFromQueue(videoId, position)
 		})
 
-		ipcRenderer.on('search', (_, query) => {
-			const input = $('input.ytmusic-search-box')
-			input.value = query
-			input.dispatchEvent(new KeyboardEvent('keypress', {
-				bubbles: true, cancelable: true, keyCode: 13
-			}))
+		ipcRenderer.on('search', async (_, query) => {
+			ipcRenderer.send('searchMainResults', await search(query))
+		})
+
+		ipcRenderer.on('showShelf', async (_, index) => {
+			ipcRenderer.send('showShelfResults', await showAll(index))
+		})
+
+		ipcRenderer.on('playSearchSong', async (_, {index, shelf}) => {
+			playSearchSong(index, shelf)
+		})
+
+		ipcRenderer.on('requestPlaylists', async (e) => {
+			await openLibrary()
+			await openPlaylists()
+			ipcRenderer.send('playlists', getPlaylists())
+		})
+
+		ipcRenderer.on('requestPlaylist', async (e, index) => {
+			await openPlaylist(index)
+			ipcRenderer.send('playlist', getPlaylistContent())
+		})
+
+		ipcRenderer.on('playPlaylist', async (_, {shuffle, index}) => {
+			playPlaylist(shuffle, index)
+		})
+
+		ipcRenderer.on('openPlayer', (_) => {
+			document.querySelector('ytmusic-player-bar')?.click()
 		})
 
 		const observer = new MutationObserver(() => {
@@ -71,6 +94,228 @@ function changeVolume(volume, options) {
 
 function playQueueItemById(videoId) {
 	$(`[videoid="${videoId}"] ytmusic-play-button-renderer`)?.click()
+}
+
+async function observerContents(run) {
+	return new Promise((resolve, reject) => {
+		let connected = true
+		let removedContent = false
+		const observer = new MutationObserver(() => {
+			if (removedContent) {
+				connected = false
+				observer.disconnect()
+				setTimeout(resolve, 200)
+			} else removedContent = true
+		})
+		observer.observe(document.querySelector('#contents'), {subtree: true, childList: true})
+		setTimeout(() => {
+			if (connected) reject()
+		}, 2000)
+		run(reject)
+	})
+}
+
+async function observerSearchPage(run) {
+	return new Promise((resolve, reject) => {
+		let connected = true
+		const observer = new MutationObserver(() => {
+			connected = false
+			setTimeout(resolve, 200)
+		})
+		observer.observe(document.querySelector('ytmusic-search-page'), {subtree: true, childList: true})
+		setTimeout(() => {
+			if (connected) reject()
+		}, 2000)
+		run(reject)
+	})
+}
+
+async function search(query) {
+	await observerSearchPage(() => {
+		const input = $('input.ytmusic-search-box')
+		input.value = query
+		input.dispatchEvent(new KeyboardEvent('keypress', {
+			bubbles: true, cancelable: true, keyCode: 13
+		}))
+	})
+
+	const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+	if (!content) return []
+
+	const shelfs = [...content.querySelectorAll('ytmusic-shelf-renderer')]
+
+	return shelfs.map((shelf, index) => {
+		const {
+			title: {runs: title}
+		} = shelf.data
+
+		const entries = [...shelf.querySelectorAll('#contents ytmusic-responsive-list-item-renderer')]
+
+		return {
+			index,
+			title: title.map(s => s.text).join(''),
+			type: title.map(s => s.text).join('').toLowerCase(),
+			entries: entries.map((entry, index) => {
+				const {
+					thumbnail: {musicThumbnailRenderer: {thumbnail: {thumbnails}}}
+				} = entry.data
+
+				const texts = entry.querySelector('.flex-columns')
+
+				const spaceChar = ' • '
+
+				const title = texts.querySelector('.title-column yt-formatted-string').title
+				const subTitle = texts.querySelector('.secondary-flex-columns yt-formatted-string').title.split(spaceChar)
+
+				return {
+					index,
+					title,
+					type: subTitle[0].toLowerCase(),
+					subTitle: subTitle.length > 1 ? subTitle.filter((_, index) => index > 0) : subTitle,
+					thumbnails
+				}
+			}),
+			showAll: !!shelf.querySelector('.more-button a')
+		}
+	})
+}
+
+async function showAll(index) {
+	const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+	await observerSearchPage(cancel => {
+		if (!content) return cancel()
+
+		const shelfs = [...content.querySelectorAll('ytmusic-shelf-renderer')]
+		const button = shelfs[index]?.querySelector('.more-button a')
+
+		if (!button) return cancel()
+
+		button.click()
+	})
+
+	const songs = [...content.querySelectorAll('ytmusic-shelf-renderer #contents ytmusic-responsive-list-item-renderer')]
+
+	return songs.map((song, index) => {
+		const {
+			thumbnail: {musicThumbnailRenderer: {thumbnail: {thumbnails}}},
+		} = song.data
+
+		const texts = song.querySelector('.flex-columns')
+
+		const spaceChar = ' • '
+
+		const title = texts.querySelector('.title-column yt-formatted-string').title
+		const subTitle = texts.querySelector('.secondary-flex-columns yt-formatted-string').title
+
+		return {
+			index,
+			title,
+			subTitle: subTitle.split(spaceChar),
+			thumbnails
+		}
+	})
+}
+
+function playSearchSong(index, shelf) {
+	if (shelf !== undefined) {
+		const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+		if (!content) return
+
+		const shelfElement = [...content.querySelectorAll('ytmusic-shelf-renderer')][shelf]
+		if (!shelfElement) return
+
+		[...shelfElement.querySelectorAll('#contents ytmusic-responsive-list-item-renderer')][index]?.querySelector('ytmusic-play-button-renderer')?.click()
+	} else {
+		const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+		if (!content) return
+		const songs = [...content.querySelectorAll('ytmusic-shelf-renderer #contents ytmusic-responsive-list-item-renderer')]
+		songs[index]?.querySelector('ytmusic-play-button-renderer')?.click()
+	}
+}
+
+async function openLibrary() {
+	await observerContents(cancel => {
+		const element = document.querySelector('[tab-id="FEmusic_liked"]')
+		if (!element) return cancel()
+		element.click()
+	})
+}
+
+async function openPlaylists() {
+	await observerContents(cancel => {
+		const nodeElements = [...document.querySelectorAll('ytmusic-item-section-tab-renderer')]
+		const element = nodeElements.find(element => element.innerText.toLowerCase() === 'playlists')
+		if (!element) return cancel()
+		element.click()
+	})
+}
+
+function getPlaylistsWrapper() {
+	return document.querySelector('ytmusic-grid-renderer[grid-type="library"]')
+}
+
+function getPlaylists() {
+	const wrapper = getPlaylistsWrapper()
+	if (!wrapper) return []
+
+	const playlists = [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')]
+
+	return playlists.filter((_, index) => index !== 0).map((playlist, index) => {
+		const {
+			subtitle: {runs: subtitle},
+			thumbnailRenderer: {musicThumbnailRenderer: {thumbnail: {thumbnails}}},
+			title: {runs: title}
+		} = playlist.data
+
+		return {
+			index: index + 1,
+			title: title.map(s => s.text).join(''),
+			subtitle: subtitle.map(s => s.text).join(''),
+			thumbnails
+		}
+	})
+}
+
+async function openPlaylist(index) {
+	await observerContents(cancel => {
+		const wrapper = getPlaylistsWrapper()
+		if (!wrapper) return cancel()
+
+		const playlists = [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')]
+
+		playlists[index]?.querySelector('.title-group .title a')?.click()
+	})
+}
+
+function getPlaylistContent() {
+	const wrapper = document.querySelector('[main-page-type="MUSIC_PAGE_TYPE_PLAYLIST"] #contents.ytmusic-section-list-renderer')
+	if (!wrapper) return []
+
+	const items = [...wrapper.querySelectorAll('ytmusic-responsive-list-item-renderer')]
+
+	return items.map((item, index) => {
+		if (item.__data.unplayable_) return {remove: true}
+		const {
+			playlistItemData: {videoId},
+			thumbnail: {musicThumbnailRenderer: {thumbnail: {thumbnails}}}
+		} = item.data
+
+		return {
+			index: index,
+			videoId,
+			thumbnails,
+			title: cleanupName(item.querySelector('yt-formatted-string.title').innerText),
+			artist: item.querySelector('.secondary-flex-columns yt-formatted-string').title
+		}
+	}).filter(item => !item.remove)
+}
+
+function playPlaylist(shuffle, index) {
+	if (shuffle) document.querySelector('ytmusic-menu-renderer yt-button-renderer tp-yt-paper-button')?.click()
+	else {
+		const items = [...document.querySelectorAll('[main-page-type="MUSIC_PAGE_TYPE_PLAYLIST"] #contents.ytmusic-section-list-renderer ytmusic-responsive-list-item-renderer')]
+		items[index ?? 0]?.querySelector('ytmusic-play-button-renderer yt-icon')?.click()
+	}
 }
 
 function rightClick(element) {

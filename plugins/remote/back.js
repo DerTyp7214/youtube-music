@@ -149,14 +149,74 @@ function connected(ws, win) {
 				case 'requestSongInfo':
 					ws.send(JSON.stringify({action: 'songInfo', data: currentSongInfo}))
 					break;
+				case 'requestPlaylists':
+					ipcMain.once('playlists', (_, data) => {
+						ws.send(JSON.stringify({
+							action: 'playlists',
+							data
+						}))
+					})
+					win.webContents.send('requestPlaylists')
+					break;
+				case 'requestPlaylist':
+					if (json.data) {
+						const {index} = json.data
+						ipcMain.once('playlist', (_, data) => {
+							ws.send(JSON.stringify({
+								action: 'playlist',
+								data
+							}))
+						})
+						win.webContents.send('requestPlaylist', index)
+					}
+					break;
+				case 'playPlaylist':
+					if (json.data) {
+						const {shuffle, index} = json.data
 
+						win.webContents.send('playPlaylist', {shuffle, index})
+					}
+					break;
 				case 'search':
 					if (json.data) {
 						const {query} = json.data
 
+						ipcMain.once('searchMainResults', (_, data) => {
+							ws.send(JSON.stringify({
+								action: 'searchMainResults',
+								data
+							}))
+						})
+
 						controls.search()
 						win.webContents.send('search', query)
 					}
+					break;
+				case 'showShelf':
+					if (json.data) {
+						const {index} = json.data
+
+						ipcMain.once('showShelfResults', (_, data) => {
+							ws.send(JSON.stringify({
+								action: 'showShelfResults',
+								data
+							}))
+						})
+
+						controls.search()
+						win.webContents.send('showShelf', index)
+					}
+					break;
+				case 'playSearchSong':
+					if (json.data) {
+						const {index, shelf} = json.data
+
+						win.webContents.send('playSearchSong', {index, shelf})
+					}
+					break;
+				case 'openPlayer':
+					win.webContents.send('openPlayer')
+					break;
 			}
 		}
 	})
