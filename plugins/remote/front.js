@@ -56,7 +56,35 @@ module.exports = (options) => {
 			playSearchSong(index, shelf)
 		})
 
-		ipcRenderer.on('requestPlaylists', async (e) => {
+		ipcRenderer.on('searchContextMenu', async (_, {index, shelf, action}) => {
+			switch (action) {
+				case 'radio':
+					startSearchItemRadio(index, shelf)
+					break;
+				case 'next':
+					playSearchItemNext(index, shelf)
+					break;
+				case 'queue':
+					addSearchItemToQueue(index, shelf)
+					break;
+			}
+		})
+
+		ipcRenderer.on('playlistContextMenu', async (_, {index, song, action}) => {
+			switch (action) {
+				case 'radio':
+					startPlaylistItemRadio(song, index)
+					break;
+				case 'next':
+					playPlaylistItemNext(song, index)
+					break;
+				case 'queue':
+					addPlaylistItemToQueue(song, index)
+					break;
+			}
+		})
+
+		ipcRenderer.on('requestPlaylists', async () => {
 			await openLibrary()
 			await openPlaylists()
 			ipcRenderer.send('playlists', getPlaylists())
@@ -233,6 +261,58 @@ function playSearchSong(index, shelf) {
 	}
 }
 
+function getShelfElement(index, shelf) {
+	let element
+	if (shelf !== undefined) {
+		const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+		if (!content) return
+
+		const shelfElement = [...content.querySelectorAll('ytmusic-shelf-renderer')][shelf]
+		if (!shelfElement) return
+
+		element = [...shelfElement.querySelectorAll('#contents ytmusic-responsive-list-item-renderer')][index]
+	} else {
+		const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
+		if (!content) return
+		const songs = [...content.querySelectorAll('ytmusic-shelf-renderer #contents ytmusic-responsive-list-item-renderer')]
+		element = songs[index]
+	}
+	return element
+}
+
+function startSearchItemRadio(index, shelf) {
+	let element = getShelfElement(index, shelf)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextNavigationItem(contextMenu, 'start radio', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function playSearchItemNext(index, shelf) {
+	let element = getShelfElement(index, shelf)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'play next', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function addSearchItemToQueue(index, shelf) {
+	let element = getShelfElement(index, shelf)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'add to queue', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
 async function openLibrary() {
 	await observerContents(cancel => {
 		const element = document.querySelector('[tab-id="FEmusic_liked"]')
@@ -274,6 +354,53 @@ function getPlaylists() {
 			thumbnails
 		}
 	})
+}
+
+function getPlaylistContextItem(song, index) {
+	if (song) {
+		const wrapper = document.querySelector('[main-page-type="MUSIC_PAGE_TYPE_PLAYLIST"] #contents.ytmusic-section-list-renderer')
+		if (!wrapper) return []
+
+		return [...wrapper.querySelectorAll('ytmusic-responsive-list-item-renderer')][index]
+	} else {
+		const wrapper = getPlaylistsWrapper()
+		if (!wrapper) return []
+
+		return [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')][index]
+	}
+}
+
+function startPlaylistItemRadio(song, index) {
+	let element = getPlaylistContextItem(song, index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextNavigationItem(contextMenu, 'start radio', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function playPlaylistItemNext(song, index) {
+	let element = getPlaylistContextItem(song, index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'play next', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function addPlaylistItemToQueue(song, index) {
+	let element = getPlaylistContextItem(song, index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'add to queue', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
 }
 
 async function openPlaylist(index) {

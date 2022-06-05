@@ -214,6 +214,20 @@ function connected(ws, win) {
 						win.webContents.send('playSearchSong', {index, shelf})
 					}
 					break;
+				case 'searchContextMenu':
+					if (json.data) {
+						const {index, shelf, action} = json.data
+
+						win.webContents.send('searchContextMenu', {index, shelf, action})
+					}
+					break;
+				case 'playlistContextMenu':
+					if (json.data) {
+						const {index, song, action} = json.data
+
+						win.webContents.send('playlistContextMenu', {index, song, action})
+					}
+					break;
 				case 'openPlayer':
 					win.webContents.send('openPlayer')
 					break;

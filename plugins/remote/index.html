@@ -16,8 +16,24 @@
 	</style>
 </head>
 <body>
-<h1 id="ip">Yeet</h1>
-<canvas id="canvas"></canvas>
+<div style="display: flex; flex-direction: row; justify-content: space-evenly">
+	<div>
+		<h3 style="margin-left: 2.5vw">Download the app from the PlayStore</h3>
+		<a
+				href='https://play.google.com/store/apps/details?id=de.dertyp7214.youtubemusicremote&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'
+				target="_blank">
+			<img alt='Get it on Google Play'
+				 style="max-width: 40vw;"
+				 src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/>
+		</a>
+	</div>
+	<div>
+		<h3>If you already have the app, just scan the QR-Code or type the ip manually.</h3>
+		<br>
+		<h1 id="ip"></h1>
+		<canvas id="canvas"></canvas>
+	</div>
+</div>
 <script>
 	const ip = require('ip')
 	const QRCode = require('qrcode')

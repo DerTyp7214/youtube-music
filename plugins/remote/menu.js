@@ -1,15 +1,14 @@
 const {BrowserWindow} = require("electron");
 const path = require("path");
 
-module.exports = (win, options, refreshMenu) => {
-
+module.exports = () => {
 	return [
 		{
 			label: "Open QR Code",
 			click: () => {
 				const window = new BrowserWindow({
-					width: 500,
-					height: 500,
+					width: 1000,
+					height: 600,
 					autoHideMenuBar: true,
 					webPreferences: {
 						nodeIntegration: true,
