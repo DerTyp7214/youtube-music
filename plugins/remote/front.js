@@ -45,7 +45,13 @@ module.exports = (options) => {
 		})
 
 		ipcRenderer.on('search', async (_, query) => {
-			ipcRenderer.send('searchMainResults', await search(query))
+			await search(query)
+			ipcRenderer.send('searchMainResults', getSearchResults())
+		})
+
+		ipcRenderer.on('selectSearchTab', async (_, index) => {
+			await selectSearchTab(index).catch(() => console.log('Error selecting tab'))
+			ipcRenderer.send('searchMainResults', getSearchResults())
 		})
 
 		ipcRenderer.on('showShelf', async (_, index) => {
@@ -107,7 +113,6 @@ module.exports = (options) => {
 			ipcRenderer.send('returnQueue', getQueue())
 		})
 
-
 		observer.observe(getQueueWrapper(), {attributes: true, childList: true})
 	})
 }
@@ -166,13 +171,39 @@ async function search(query) {
 			bubbles: true, cancelable: true, keyCode: 13
 		}))
 	})
+}
 
+async function selectSearchTab(index) {
+	await observerSearchPage(cancel => {
+		const tab = [...document.querySelectorAll('ytmusic-search-page ytmusic-tabbed-search-results-renderer ytmusic-tabs #tabs yt-formatted-string')][index]
+		if (!tab) return cancel()
+		tab.click()
+	})
+}
+
+function getSearchResults() {
 	const content = document.querySelector('ytmusic-search-page ytmusic-section-list-renderer div#contents')
 	if (!content) return []
 
 	const shelfs = [...content.querySelectorAll('ytmusic-shelf-renderer')]
 
-	return shelfs.map((shelf, index) => {
+	const tabs = [...document.querySelectorAll('ytmusic-search-page ytmusic-tabbed-search-results-renderer ytmusic-tabs #tabs yt-formatted-string')]
+
+	return [{
+		index: -1,
+		title: '',
+		type: 'tabs',
+		entries: tabs.map((tab, index) => {
+			return {
+				index,
+				title: tab.innerText,
+				type: tab.hasAttribute('selected') ? 'selected' : 'unselected',
+				subTitle: [],
+				thumbnails: []
+			}
+		}),
+		showAll: false
+	}, ...shelfs.map((shelf, index) => {
 		const {
 			title: {runs: title}
 		} = shelf.data
@@ -205,7 +236,7 @@ async function search(query) {
 			}),
 			showAll: !!shelf.querySelector('.more-button a')
 		}
-	})
+	})]
 }
 
 async function showAll(index) {

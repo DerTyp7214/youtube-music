@@ -228,6 +228,20 @@ function connected(ws, win) {
 						win.webContents.send('playlistContextMenu', {index, song, action})
 					}
 					break;
+				case 'selectSearchTab':
+					if (json.data) {
+						const {index} = json.data
+
+						ipcMain.once('searchMainResults', (_, data) => {
+							ws.send(JSON.stringify({
+								action: 'searchMainResults',
+								data
+							}))
+						})
+
+						win.webContents.send('selectSearchTab', index)
+					}
+					break;
 				case 'openPlayer':
 					win.webContents.send('openPlayer')
 					break;
