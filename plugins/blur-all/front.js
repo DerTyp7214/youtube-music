@@ -204,5 +204,3 @@ function parseCover(cover) {
 	octx.drawImage(cover, 0, 0, oc.width, oc.height)
 	image.src = oc.toDataURL()
 }
-
-window.parseCover = parseCover
