@@ -1,9 +1,35 @@
 const Vibrant = require('node-vibrant/dist/vibrant')
+const {ipcRenderer} = require("electron")
 
 const $ = (s, d) => (d ?? document).querySelector(s)
 
+const CanvasImage = function (element, image) {
+	this.image = image
+	this.element = element
+	this.element.width = this.image.width
+	this.element.height = this.image.height
+	this.context = this.element.getContext('2d')
+	this.context.drawImage(this.image, 0, 0)
+}
+CanvasImage.prototype = {
+	blur: function (strength) {
+		this.context.globalAlpha = 0.5
+		for (let y = -strength; y <= strength; y += 2) {
+			for (let x = -strength; x <= strength; x += 2) {
+				this.context.drawImage(this.element, x, y)
+				if (x >= 0 && y >= 0) this.context.drawImage(this.element, -(x - 1), -(y - 1))
+			}
+		}
+		this.context.globalAlpha = 1.0
+	},
+	darken: function (amount) {
+		this.context.fillStyle = `rgba(0, 0, 0, ${amount})`
+		this.context.fillRect(0, 0, this.element.width, this.element.height)
+	}
+}
+
 module.exports = () => {
-	document.addEventListener('apiLoaded', apiEvent => {
+	document.addEventListener('apiLoaded', () => {
 		const imageWrapper = $('#player')
 		const image = $('img', imageWrapper)
 
@@ -13,10 +39,11 @@ module.exports = () => {
 		const css = color => `display:block;border-radius:23px;border: 2px solid ${color};box-shadow: 0px 0px 8px 0px ${color};`
 		const rgbToHex = (rgb) => '#' + ((1 << 24) + (Math.floor(rgb[0]) << 16) + (Math.floor(rgb[1]) << 8) + Math.floor(rgb[2])).toString(16).slice(1)
 		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => {
-			const color = rgbToHex(palette.Vibrant.rgb)
-			const colorDark = rgbToHex(palette.DarkVibrant.rgb)
-			const colorLight = rgbToHex(palette.LightVibrant.rgb)
-			style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
+			try {
+				const color = rgbToHex(palette.Vibrant.rgb)
+				const colorDark = rgbToHex(palette.DarkVibrant.rgb)
+				const colorLight = rgbToHex(palette.LightVibrant.rgb)
+				style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
 				--paper-slider-knob-color: ${color};
 				--paper-slider-knob-start-color: ${color};
 				--paper-slider-knob-start-border-color: ${color};
@@ -30,13 +57,16 @@ module.exports = () => {
 				--dark-vibrant-cover-color: ${colorDark};
 				--light-vibrant-cover-color: ${colorLight};
 			}`
-			imageWrapper.style = css(color)
+				imageWrapper.style = css(color)
+			} catch (_) {
+			}
 		}).catch(console.log)
 
 		image.setAttribute('crossOrigin', 'Anonymous')
 		if (image.complete) addStyle(image, imageWrapper)
 		image.addEventListener('load', () => {
 			addStyle(image, imageWrapper)
+			parseCover(image)
 		})
 	})
 
@@ -128,3 +158,51 @@ tp-yt-paper-dialog, tp-yt-paper-listbox.ytmusic-menu-popup-renderer {
 }`
 	document.head.append(style)
 }
+
+function parseCover(cover) {
+	const playerPage = document.querySelector('ytmusic-player-page')
+	if (!cover || !playerPage) return
+
+	const size = 200
+
+	const image = new Image(size, size)
+	image.onload = () => {
+		let style = document.querySelector('#cover-style')
+		if (!style) {
+			style = document.createElement('style')
+			style.id = 'cover-style'
+			document.head.append(style)
+		}
+
+		const canvas = document.createElement('canvas')
+		const canvasImage = new CanvasImage(canvas, image)
+		canvasImage.blur(6)
+		canvasImage.darken(.3)
+
+		const url = canvas.toDataURL()
+
+		style.textContent = `body { --cover-blurred: url(${url}); }`
+
+		playerPage.style.backgroundImage = `var(--cover-blurred)`
+		playerPage.style.backgroundPosition = 'center'
+		playerPage.style.backgroundSize = 'cover'
+
+		canvas.remove()
+	}
+
+	const oc = document.createElement('canvas'), octx = oc.getContext('2d')
+	oc.width = cover.width
+	oc.height = cover.height
+	octx.drawImage(cover, 0, 0)
+	while (oc.width * 0.5 > size) {
+		oc.width *= 0.5
+		oc.height *= 0.5
+		octx.drawImage(oc, 0, 0, oc.width, oc.height)
+	}
+	oc.width = size
+	oc.height = oc.width * cover.height / cover.width
+	octx.drawImage(cover, 0, 0, oc.width, oc.height)
+	image.src = oc.toDataURL()
+}
+
+window.parseCover = parseCover
