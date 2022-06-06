@@ -25,6 +25,9 @@ CanvasImage.prototype = {
 	darken: function (amount) {
 		this.context.fillStyle = `rgba(0, 0, 0, ${amount})`
 		this.context.fillRect(0, 0, this.element.width, this.element.height)
+	},
+	data: function () {
+		return this.context.getImageData(0, 0, this.element.width, this.element.height).data
 	}
 }
 
@@ -177,7 +180,16 @@ function parseCover(cover) {
 		const canvas = document.createElement('canvas')
 		const canvasImage = new CanvasImage(canvas, image)
 		canvasImage.blur(6)
-		canvasImage.darken(.3)
+
+		const data = canvasImage.data()
+		let colorSum = 0
+		for (let x = 0, len = data.length; x < len; x += 4) {
+			colorSum += Math.floor((data[x] + data[x + 1] + data[x + 2]) / 3)
+		}
+
+		const luminance = Math.floor(colorSum / (size * size))
+
+		canvasImage.darken(.7 * ((1 / 256) * luminance))
 
 		const url = canvas.toDataURL()
 
