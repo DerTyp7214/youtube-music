@@ -200,6 +200,7 @@ function parseCover(cover) {
 		playerPage.style.backgroundSize = 'cover'
 
 		canvas.remove()
+		image.remove()
 	}
 
 	const oc = document.createElement('canvas'), octx = oc.getContext('2d')
