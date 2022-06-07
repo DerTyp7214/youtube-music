@@ -1,5 +1,7 @@
 const Vibrant = require('node-vibrant/dist/vibrant')
 const {ipcRenderer} = require("electron")
+const {getAverageRGB} = require("../utils")
+const {rgbDiff, DELTAE94_DIFF_STATUS} = require("@vibrant/color/lib/converter")
 
 const $ = (s, d) => (d ?? document).querySelector(s)
 
@@ -39,28 +41,40 @@ module.exports = () => {
 		const style = document.createElement('style')
 		document.head.append(style)
 
-		const css = color => `display:block;border-radius:23px;border: 2px solid ${color};box-shadow: 0px 0px 8px 0px ${color};`
 		const rgbToHex = (rgb) => '#' + ((1 << 24) + (Math.floor(rgb[0]) << 16) + (Math.floor(rgb[1]) << 8) + Math.floor(rgb[2])).toString(16).slice(1)
 		const addStyle = (image, imageWrapper) => Vibrant.from(image).getPalette().then(palette => {
 			try {
-				const color = rgbToHex(palette.Vibrant.rgb)
+				const {r: aR, g: aG, b: aB} = getAverageRGB(image)
+				const [vR, vG, vB] = palette.Vibrant.rgb
+
+				const color = rgbToHex([vR, vG, vB])
 				const colorDark = rgbToHex(palette.DarkVibrant.rgb)
 				const colorLight = rgbToHex(palette.LightVibrant.rgb)
+				const averageColor = rgbToHex([aR, aG, aB])
+
+				const colorDiff = rgbDiff([aR, aG, aB], [vR, vG, vB])
+
+				const similar = colorDiff < DELTAE94_DIFF_STATUS.GOOD
+
+				const calculatedColor = similar ? rgbToHex([0xff - vR, 0xff - vG, 0xff - vB]) : rgbToHex([vR, vG, vB])
+
 				style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
-				--paper-slider-knob-color: ${color};
-				--paper-slider-knob-start-color: ${color};
-				--paper-slider-knob-start-border-color: ${color};
+				--paper-slider-knob-color: var(--calculated-cover-color);
+				--paper-slider-knob-start-color: var(--calculated-cover-color);
+				--paper-slider-knob-start-border-color: var(--calculated-cover-color);
 			}
 			#progress-bar.ytmusic-player-bar {
-				--paper-slider-active-color: ${color};
+				--paper-slider-active-color: var(--calculated-cover-color);
 			}
 
 			body {
 				--vibrant-cover-color: ${color};
 				--dark-vibrant-cover-color: ${colorDark};
 				--light-vibrant-cover-color: ${colorLight};
+				--average-cover-color: ${averageColor};
+				--calculated-cover-color: ${calculatedColor};
 			}`
-				imageWrapper.style = css(color)
+				imageWrapper.style = 'display:block;border-radius:23px;border: 2px solid var(--calculated-cover-color);box-shadow: 0px 0px 8px 0px var(--calculated-cover-color);'
 			} catch (_) {
 			}
 		}).catch(console.log)

@@ -96,13 +96,13 @@ module.exports = () => {
 				function fullData() {
 					currentAnimationFrame = requestAnimationFrame(fullData)
 
-					const color = window.getComputedStyle(document.body, null).getPropertyValue('--light-vibrant-cover-color')
+					const color = window.getComputedStyle(document.body, null).getPropertyValue('--calculated-cover-color')
 
 					if (!document.querySelector('ytmusic-player canvas')) {
 						canvas.width = player.clientWidth
 						canvas.height = player.clientHeight
 
-						canvas.style.opacity = '.7'
+						canvas.style.opacity = '1'
 						canvas.style.position = 'absolute'
 						canvas.style.top = '0px'
 						canvas.style.left = '0px'
@@ -121,7 +121,8 @@ module.exports = () => {
 
 					ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-					const barWidth = (canvas.width / data.length) - 1
+					const barWidth = (canvas.width / data.length) * .8
+					const gapWidth = (canvas.width / data.length) * .2
 					let x = 0
 
 					ctx.fillStyle = color
@@ -131,7 +132,7 @@ module.exports = () => {
 
 						ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2)
 
-						x += barWidth + 1
+						x += barWidth + gapWidth
 					}
 				}
 
