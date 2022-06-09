@@ -93,7 +93,7 @@ module.exports = (options) => {
 		ipcRenderer.on('requestPlaylists', async () => {
 			await openLibrary()
 			await openPlaylists()
-			ipcRenderer.send('playlists', getPlaylists())
+			ipcRenderer.send('playlists', {recentActivity: getRecentActivity(), playlists: getPlaylists()})
 		})
 
 		ipcRenderer.on('requestPlaylist', async (e, index) => {
@@ -103,6 +103,24 @@ module.exports = (options) => {
 
 		ipcRenderer.on('playPlaylist', async (_, {shuffle, index}) => {
 			playPlaylist(shuffle, index)
+		})
+
+		ipcRenderer.on('playRecentItem', (_, index) => {
+			playRecentItem(index)
+		})
+
+		ipcRenderer.on('contextRecentItem', (_, {index, action}) => {
+			switch (action) {
+				case 'radio':
+					startRecentItemRadio(index)
+					break;
+				case 'next':
+					playRecentItemNext(index)
+					break;
+				case 'queue':
+					addRecentItemToQueue(index)
+					break;
+			}
 		})
 
 		ipcRenderer.on('openPlayer', (_) => {
@@ -382,9 +400,82 @@ function getPlaylists() {
 			index: index + 1,
 			title: title.map(s => s.text).join(''),
 			subtitle: subtitle.map(s => s.text).join(''),
-			thumbnails
+			thumbnails,
+			playable: true
 		}
 	})
+}
+
+function getRecentActivity() {
+	const wrapper = document.querySelector('ytmusic-carousel-shelf-renderer #items-wrapper ul#items')
+	if (!wrapper) return []
+
+	const items = [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')]
+
+	return items.map((item, index) => {
+		const {
+			title: {runs: title},
+			subtitle: {runs: subtitle},
+			thumbnailRenderer: {musicThumbnailRenderer: {thumbnail: {thumbnails}}}
+		} = item.data
+
+		return {
+			index,
+			title: title.map(s => s.text).join(''),
+			subtitle: subtitle.map(s => s.text).join(''),
+			thumbnails,
+			playable: !!item.querySelector('ytmusic-play-button-renderer')
+		}
+	})
+}
+
+function playRecentItem(index) {
+	const wrapper = document.querySelector('ytmusic-carousel-shelf-renderer #items-wrapper ul#items')
+	if (!wrapper) return []
+
+	const items = [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')]
+
+	items[index]?.querySelector('ytmusic-play-button-renderer')?.click()
+}
+
+function getRecentContextItem(index) {
+	const wrapper = document.querySelector('ytmusic-carousel-shelf-renderer #items-wrapper ul#items')
+	if (!wrapper) return null
+
+	return [...wrapper.querySelectorAll('ytmusic-two-row-item-renderer')][index]
+}
+
+function startRecentItemRadio(index) {
+	let element = getRecentContextItem(index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextNavigationItem(contextMenu, 'start radio', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function playRecentItemNext(index) {
+	let element = getRecentContextItem(index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'play next', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
+}
+
+function addRecentItemToQueue(index) {
+	let element = getRecentContextItem(index)
+	if (!element) return
+
+	observeContextMenu('ytmusic-popup-container', contextMenu => {
+		findContextServiceItem(contextMenu, 'add to queue', 5).then(item => item?.click())
+	})
+	rightClick(element)
+	if (!$('tp-yt-iron-dropdown[aria-hidden="true"]')) rightClick(element)
 }
 
 function getPlaylistContextItem(song, index) {

@@ -214,6 +214,13 @@ function connected(ws, win) {
 						win.webContents.send('playSearchSong', {index, shelf})
 					}
 					break;
+				case 'playRecentItem':
+					if (json.data) {
+						const {index} = json.data
+
+						win.webContents.send('playRecentItem', index)
+					}
+					break;
 				case 'searchContextMenu':
 					if (json.data) {
 						const {index, shelf, action} = json.data
@@ -226,6 +233,13 @@ function connected(ws, win) {
 						const {index, song, action} = json.data
 
 						win.webContents.send('playlistContextMenu', {index, song, action})
+					}
+					break;
+				case 'recentContextMenu':
+					if (json.data) {
+						const {index, action} = json.data
+
+						win.webContents.send('contextRecentItem', {index, action})
 					}
 					break;
 				case 'selectSearchTab':

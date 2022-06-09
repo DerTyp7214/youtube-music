@@ -1,4 +1,5 @@
 const {ipcRenderer} = require('electron')
+const {set} = require("../../config");
 
 const $ = s => document.querySelector(s)
 
@@ -156,10 +157,8 @@ module.exports = () => {
 		}
 
 		$('video').addEventListener('loadeddata', setupVisualizer)
-
-		const playPauseObserver = new MutationObserver(() => {
-			setupVisualizer()
-		})
+		window.addEventListener('resize', setupVisualizer)
+		const playPauseObserver = new MutationObserver(setupVisualizer)
 
 		playPauseObserver.observe($('#play-pause-button'), {attributes: true, attributeFilter: ['aria-label']})
 
