@@ -6,10 +6,11 @@
         <language minSize="53" name="JavaScript" />
       </Languages>
     </inspection_tool>
+    <inspection_tool class="ExceptionCaughtLocallyJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="35">
+          <list size="37">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -45,6 +46,8 @@
             <item index="32" class="java.lang.String" itemvalue="ytmusic-pivot-bar-item-renderer" />
             <item index="33" class="java.lang.String" itemvalue="ytmusic-item-section-renderer" />
             <item index="34" class="java.lang.String" itemvalue="ytmusic-header-renderer" />
+            <item index="35" class="java.lang.String" itemvalue="yt-page-navigation-progress" />
+            <item index="36" class="java.lang.String" itemvalue="ytmusic-like-button-renderer" />
           </list>
         </value>
       </option>
