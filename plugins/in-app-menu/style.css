@@ -12,6 +12,10 @@ body {
 	font-size: 14px !important;
 }
 
+.cet-menubar .cet-menubar-menu-container .cet-action-menu-item {
+	height: 2em !important;
+}
+
 /* fixes nav-bar-background opacity bug, reposition it, and allows clicking scrollbar through it */
 #nav-bar-background {
 	opacity: 1 !important;
