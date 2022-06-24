@@ -9,7 +9,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="28">
+          <list size="35">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -38,6 +38,13 @@
             <item index="25" class="java.lang.String" itemvalue="ytmusic-tabs" />
             <item index="26" class="java.lang.String" itemvalue="ytmusic-player-page" />
             <item index="27" class="java.lang.String" itemvalue="ytmusic-carousel-shelf-renderer" />
+            <item index="28" class="java.lang.String" itemvalue="ytmusic-app-layout" />
+            <item index="29" class="java.lang.String" itemvalue="ytmusic-player-expanding-menu" />
+            <item index="30" class="java.lang.String" itemvalue="tp-yt-paper-listbox" />
+            <item index="31" class="java.lang.String" itemvalue="ytmusic-nav-bar" />
+            <item index="32" class="java.lang.String" itemvalue="ytmusic-pivot-bar-item-renderer" />
+            <item index="33" class="java.lang.String" itemvalue="ytmusic-item-section-renderer" />
+            <item index="34" class="java.lang.String" itemvalue="ytmusic-header-renderer" />
           </list>
         </value>
       </option>
