@@ -35,6 +35,7 @@ ytmusic-nav-bar,
 .tab-titleiron-icon,
 ytmusic-pivot-bar-item-renderer {
 	--webkit-app-region: unset !important;
+	app-region: unset !important;
 }
 
 /* move up item selection renderers */

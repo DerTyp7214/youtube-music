@@ -59,10 +59,12 @@ module.exports = (options) => {
 		})
 
 		ipcRenderer.on('playSearchSong', async (_, {index, shelf}) => {
+			if (window.debug) console.log('ipc->playSearchSong', index, shelf)
 			playSearchSong(index, shelf)
 		})
 
 		ipcRenderer.on('searchContextMenu', async (_, {index, shelf, action}) => {
+			if (window.debug) console.log('ipc->searchContextMenu', index, shelf, action)
 			switch (action) {
 				case 'radio':
 					startSearchItemRadio(index, shelf)
@@ -331,6 +333,7 @@ function getShelfElement(index, shelf) {
 
 function startSearchItemRadio(index, shelf) {
 	let element = getShelfElement(index, shelf)
+	if (window.debug) console.log('startSearchItemRadio', element, index, shelf)
 	if (!element) return
 
 	observeContextMenu('ytmusic-popup-container', contextMenu => {
@@ -342,6 +345,7 @@ function startSearchItemRadio(index, shelf) {
 
 function playSearchItemNext(index, shelf) {
 	let element = getShelfElement(index, shelf)
+	if (window.debug) console.log('playSearchItemNext', element, index, shelf)
 	if (!element) return
 
 	observeContextMenu('ytmusic-popup-container', contextMenu => {
@@ -353,6 +357,7 @@ function playSearchItemNext(index, shelf) {
 
 function addSearchItemToQueue(index, shelf) {
 	let element = getShelfElement(index, shelf)
+	if (window.debug) console.log('addSearchItemToQueue', element, index, shelf)
 	if (!element) return
 
 	observeContextMenu('ytmusic-popup-container', contextMenu => {
