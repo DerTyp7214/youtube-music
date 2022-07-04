@@ -129,6 +129,12 @@ module.exports = (options) => {
 			document.querySelector('ytmusic-player-bar')?.click()
 		})
 
+		ipcRenderer.on('searchOpened', async (_) => {
+			await openSearch(suggestions => {
+				ipcRenderer.send('searchSuggestions', suggestions)
+			})
+		})
+
 		const observer = new MutationObserver(() => {
 			ipcRenderer.send('returnQueue', getQueue())
 		})
@@ -162,7 +168,10 @@ async function observerContents(run) {
 		})
 		observer.observe(document.querySelector('#contents'), {subtree: true, childList: true})
 		setTimeout(() => {
-			if (connected) reject()
+			if (connected) {
+				observer.disconnect()
+				reject()
+			}
 		}, 2000)
 		run(reject)
 	})
@@ -177,9 +186,30 @@ async function observerSearchPage(run) {
 		})
 		observer.observe(document.querySelector('ytmusic-search-page'), {subtree: true, childList: true})
 		setTimeout(() => {
-			if (connected) reject()
+			if (connected) {
+				observer.disconnect()
+				reject()
+			}
 		}, 2000)
 		run(reject)
+	})
+}
+
+async function openSearch(suggestionsCallback) {
+	await observerSearchPage(cancel => {
+		const suggestionsWrapper = $('ytmusic-search-suggestions-section #suggestions')
+		if (!suggestionsWrapper) return cancel()
+		const suggestions = [...suggestionsWrapper.querySelectorAll('ytmusic-search-suggestion')]
+		suggestionsCallback?.(suggestions.map((element, index) => {
+			const {
+				suggestion: {runs: suggestion}
+			} = element.data
+			return {
+				index,
+				suggestion: suggestion.map(s => s.text).join(''),
+				text: element.querySelector('yt-formatted-string').title
+			}
+		}))
 	})
 }
 

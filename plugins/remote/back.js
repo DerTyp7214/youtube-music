@@ -259,6 +259,17 @@ function connected(ws, win) {
 				case 'openPlayer':
 					win.webContents.send('openPlayer')
 					break;
+				case 'searchOpened':
+					ipcMain.once('searchSuggestions', (_, data) => {
+						ws.send(JSON.stringify({
+							action: 'searchSuggestions',
+							data
+						}))
+					})
+
+					controls.search()
+					win.webContents.send('searchOpened')
+					break;
 			}
 		}
 	})

@@ -21,7 +21,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="37">
+          <list size="39">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -59,6 +59,8 @@
             <item index="34" class="java.lang.String" itemvalue="ytmusic-header-renderer" />
             <item index="35" class="java.lang.String" itemvalue="yt-page-navigation-progress" />
             <item index="36" class="java.lang.String" itemvalue="ytmusic-like-button-renderer" />
+            <item index="37" class="java.lang.String" itemvalue="ytmusic-search-suggestions-section" />
+            <item index="38" class="java.lang.String" itemvalue="ytmusic-search-suggestion" />
           </list>
         </value>
       </option>

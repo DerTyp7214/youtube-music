@@ -11,6 +11,11 @@ module.exports = win => {
 
 	registerCallback(songInfo => {
 		//update currentsonginfo for win.on('show')
+		win.webContents.executeJavaScript('window.debug').then(debug => {
+			if (debug === true || debug === 'true') {
+				win.webContents.executeJavaScript(`console.log('TaskBarMediaControl', JSON.parse(\`${JSON.stringify(currentSongInfo)}\`), \`${setThumbar.toString()}\`)`)
+			}
+		})
 		currentSongInfo = songInfo;
 		// update thumbar
 		setThumbar(win, songInfo);
