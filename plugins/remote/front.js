@@ -129,8 +129,8 @@ module.exports = (options) => {
 			document.querySelector('ytmusic-player-bar')?.click()
 		})
 
-		ipcRenderer.on('searchOpened', async (_) => {
-			await openSearch(suggestions => {
+		ipcRenderer.on('searchOpened', async (_, text) => {
+			await openSearch(text, suggestions => {
 				ipcRenderer.send('searchSuggestions', suggestions)
 			})
 		})
@@ -195,8 +195,11 @@ async function observerSearchPage(run) {
 	})
 }
 
-async function openSearch(suggestionsCallback) {
+async function openSearch(text, suggestionsCallback) {
 	await observerSearchPage(cancel => {
+		const input = $('input.ytmusic-search-box')
+		input.value = text
+
 		const suggestionsWrapper = $('ytmusic-search-suggestions-section #suggestions')
 		if (!suggestionsWrapper) return cancel()
 		const suggestions = [...suggestionsWrapper.querySelectorAll('ytmusic-search-suggestion')]

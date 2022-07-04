@@ -260,15 +260,19 @@ function connected(ws, win) {
 					win.webContents.send('openPlayer')
 					break;
 				case 'searchOpened':
-					ipcMain.once('searchSuggestions', (_, data) => {
-						ws.send(JSON.stringify({
-							action: 'searchSuggestions',
-							data
-						}))
-					})
+					if (json.data) {
+						const {text} = json.data
 
-					controls.search()
-					win.webContents.send('searchOpened')
+						ipcMain.once('searchSuggestions', (_, data) => {
+							ws.send(JSON.stringify({
+								action: 'searchSuggestions',
+								data
+							}))
+						})
+
+						controls.search()
+						win.webContents.send('searchOpened', text)
+					}
 					break;
 			}
 		}
