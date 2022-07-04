@@ -132,6 +132,8 @@ module.exports = (options) => {
 		ipcRenderer.on('searchOpened', async (_, text) => {
 			await openSearch(text, suggestions => {
 				ipcRenderer.send('searchSuggestions', suggestions)
+			}, () => {
+				ipcRenderer.send('openSearch')
 			})
 		})
 
@@ -182,6 +184,7 @@ async function observerSearchPage(run) {
 		let connected = true
 		const observer = new MutationObserver(() => {
 			connected = false
+			observer.disconnect()
 			setTimeout(resolve, 200)
 		})
 		observer.observe(document.querySelector('ytmusic-search-page'), {subtree: true, childList: true})
@@ -195,34 +198,82 @@ async function observerSearchPage(run) {
 	})
 }
 
-async function openSearch(text, suggestionsCallback) {
-	await observerSearchPage(cancel => {
+async function observerSearchSuggestions(result, run) {
+	await new Promise((resolve, reject) => {
+		const searchBox = $('ytmusic-search-box')
+		let connected = true
+		const observer = new MutationObserver((records) => {
+			if (records.filter(record => record.attributeName === 'opened').length > 0) {
+				connected = false
+				observer.disconnect()
+				resolve()
+			}
+		})
+		observer.observe(searchBox, {attributes: true})
+		setTimeout(() => {
+			if (connected) {
+				observer.disconnect()
+				reject()
+			}
+		}, 2000)
+	})
+	return new Promise((resolve, reject) => {
+		const wrapper = $('ytmusic-search-suggestions-section #suggestions')
+		let connected = true
+		const observer = new MutationObserver((records) => {
+			records.forEach(record => {
+				if (record.addedNodes.length>0) {
+					connected = false
+					observer.disconnect()
+					result([...record.addedNodes])
+					setTimeout(resolve, 200)
+				}
+			})
+		})
+		console.log(wrapper)
+		observer.observe(wrapper, {childList: true})
+		setTimeout(() => {
+			if (connected) {
+				observer.disconnect()
+				resolve()
+			}
+		}, 1000)
+		run(reject)
+	})
+}
+
+async function openSearch(text, suggestionsCallback, inputSet) {
+	await observerSearchPage(async cancel => {
 		const input = $('input.ytmusic-search-box')
 		input.value = text
+		inputSet?.()
 
-		const suggestionsWrapper = $('ytmusic-search-suggestions-section #suggestions')
-		if (!suggestionsWrapper) return cancel()
-		const suggestions = [...suggestionsWrapper.querySelectorAll('ytmusic-search-suggestion')]
-		suggestionsCallback?.(suggestions.map((element, index) => {
-			const {
-				suggestion: {runs: suggestion}
-			} = element.data
-			return {
-				index,
-				suggestion: suggestion.map(s => s.text).join(''),
-				text: element.querySelector('yt-formatted-string').title
-			}
-		}))
+		await observerSearchSuggestions(suggestions => {
+			suggestionsCallback?.(suggestions.map((element, index) => {
+				const {
+					suggestion: {runs: suggestion}
+				} = element.data
+				return {
+					index,
+					suggestion: suggestion.map(s => s.text).join(''),
+					text: element.querySelector('yt-formatted-string').title
+				}
+			}))
+		}).catch(cancel)
 	})
 }
 
 async function search(query) {
 	await observerSearchPage(() => {
-		const input = $('input.ytmusic-search-box')
-		input.value = query
-		input.dispatchEvent(new KeyboardEvent('keypress', {
-			bubbles: true, cancelable: true, keyCode: 13
-		}))
+		if (query === '') {
+			$('ytmusic-search-box tp-yt-paper-icon-button')?.click()
+		} else {
+			const input = $('input.ytmusic-search-box')
+			input.value = query
+			input.dispatchEvent(new KeyboardEvent('keypress', {
+				bubbles: true, cancelable: true, keyCode: 13
+			}))
+		}
 	})
 }
 

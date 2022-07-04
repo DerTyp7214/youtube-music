@@ -270,7 +270,10 @@ function connected(ws, win) {
 							}))
 						})
 
-						controls.search()
+						ipcMain.once('openSearch', (_) =>  {
+							controls.search()
+						})
+
 						win.webContents.send('searchOpened', text)
 					}
 					break;
