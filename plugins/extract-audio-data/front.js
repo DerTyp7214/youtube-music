@@ -1,5 +1,4 @@
 const {ipcRenderer} = require('electron')
-const {set} = require("../../config");
 
 const $ = s => document.querySelector(s)
 
@@ -30,10 +29,10 @@ const pinkNoise = [
 const manipulators = _createCurve(pinkNoise, barCount)
 
 function _createCurve(manipulator, count) {
-	const times = count / manipulator.length
-	if (times < 1) return manipulator
+	const multiplier = count / manipulator.length
+	if (multiplier < 1) return manipulator
 	const curve = []
-	for (let i = 0; i < manipulator.length; i++) for (let j = 0; j < times; j++) curve.push(
+	for (let i = 0; i < manipulator.length; i++) for (let j = 0; j < multiplier; j++) curve.push(
 		curve.length > 0 ? (curve[curve.length - 1] + manipulator[i]) / 2 : manipulator[i]
 	)
 	return curve

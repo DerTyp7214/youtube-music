@@ -1,5 +1,4 @@
 const Vibrant = require('node-vibrant/dist/vibrant')
-const {ipcRenderer} = require("electron")
 const {getAverageRGB} = require("../utils")
 const {rgbDiff, DELTAE94_DIFF_STATUS} = require("@vibrant/color/lib/converter")
 
@@ -46,17 +45,29 @@ module.exports = () => {
 			try {
 				const {r: aR, g: aG, b: aB} = getAverageRGB(image)
 				const [vR, vG, vB] = palette.Vibrant.rgb
+				const [dvR, dvG, dvB] = palette.DarkVibrant.rgb
+				const [lvR, lvG, lvB] = palette.LightVibrant.rgb
 
 				const color = rgbToHex([vR, vG, vB])
 				const colorDark = rgbToHex(palette.DarkVibrant.rgb)
 				const colorLight = rgbToHex(palette.LightVibrant.rgb)
 				const averageColor = rgbToHex([aR, aG, aB])
 
-				const colorDiff = rgbDiff([aR, aG, aB], [vR, vG, vB])
+				const colorDiffV = rgbDiff([aR, aG, aB], [vR, vG, vB])
+				const colorDiffDV = rgbDiff([aR, aG, aB], [dvR, dvG, dvB])
+				const colorDiffLV = rgbDiff([aR, aG, aB], [lvR, lvG, lvB])
 
-				const similar = colorDiff < DELTAE94_DIFF_STATUS.GOOD
+				const similarV = colorDiffV < DELTAE94_DIFF_STATUS.GOOD
+				const similarDV = colorDiffDV < DELTAE94_DIFF_STATUS.GOOD
+				const similarLV = colorDiffLV < DELTAE94_DIFF_STATUS.GOOD
 
-				const calculatedColor = similar ? rgbToHex([0xff - vR, 0xff - vG, 0xff - vB]) : rgbToHex([vR, vG, vB])
+				const calculatedColor = similarV ?
+					similarDV ?
+						similarLV ?
+							rgbToHex([0xff - aR, 0xff - aG, 0xff - aB]) :
+							rgbToHex([lvR, lvG, lvB]) :
+						rgbToHex([dvR, dvG, dvB]) :
+					rgbToHex([vR, vG, vB])
 
 				style.textContent = `#progress-bar.ytmusic-player-bar[focused], ytmusic-player-bar:hover #progress-bar.ytmusic-player-bar {
 				--paper-slider-knob-color: var(--calculated-cover-color);
