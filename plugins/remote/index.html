@@ -35,12 +35,19 @@
 	</div>
 </div>
 <script>
-	const ip = require('ip')
+	const os = require('os')
 	const QRCode = require('qrcode')
 
 	const {port} = require('./back')
 
-	const ipAddress = `${ip.address()}:${port}`
+	const interfaces = Object.entries(os.networkInterfaces()).map(([k, v]) => ({
+		name: k,
+		addresses: v
+	}))
+
+	const mainInterface = interfaces.find(i => i.name.toLowerCase().startsWith('ethernet')) ?? interfaces[0]
+
+	const ipAddress = `${mainInterface?.addresses?.find(a => a.family.toLowerCase() === 'ipv4')?.address}:${port}`
 
 	const ipText = document.getElementById('ip')
 	const canvas = document.getElementById('canvas')
