@@ -30,6 +30,8 @@
 	<div>
 		<h3>If you already have the app, just scan the QR-Code or type the ip manually.</h3>
 		<br>
+		<label for="networkInterfaces">Network-interface</label>
+		<select id="networkInterfaces"></select>
 		<h1 id="ip"></h1>
 		<canvas id="canvas"></canvas>
 	</div>
@@ -42,20 +44,35 @@
 
 	const interfaces = Object.entries(os.networkInterfaces()).map(([k, v]) => ({
 		name: k,
-		addresses: v
+		address: v.find(a => a.family.toLowerCase() === 'ipv4')?.address
 	}))
 
-	const mainInterface = interfaces.find(i => i.name.toLowerCase().startsWith('ethernet')) ?? interfaces[0]
+	const select = document.getElementById('networkInterfaces')
+	interfaces.forEach(i => {
+		const option = document.createElement('option')
+		option.value = i.address
+		option.innerText = i.name
+		select.append(option)
+	})
 
-	const ipAddress = `${mainInterface?.addresses?.find(a => a.family.toLowerCase() === 'ipv4')?.address}:${port}`
+	const mainInterface = interfaces.find(i => i.name.toLowerCase().startsWith('ethernet')) ?? interfaces[0]
+	select.value = mainInterface.address
+
+	const ipAddress = `${mainInterface?.address}:${port}`
 
 	const ipText = document.getElementById('ip')
 	const canvas = document.getElementById('canvas')
 
+	select.addEventListener('change', e => {
+		const ipAddress = `${e.target.value}:${port}`
+		ipText.innerText = ipAddress
+
+		QRCode.toCanvas(canvas, ipAddress, {errorCorrectionLevel: 'H', width: 300})
+	})
+
 	ipText.innerText = ipAddress
 
-	QRCode.toCanvas(canvas, ipAddress, {errorCorrectionLevel: 'H', width: 300}, () => {
-	})
+	QRCode.toCanvas(canvas, ipAddress, {errorCorrectionLevel: 'H', width: 300})
 </script>
 </body>
 </html>

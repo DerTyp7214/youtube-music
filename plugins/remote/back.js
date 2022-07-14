@@ -5,8 +5,9 @@ const getSongControls = require('../../providers/song-controls');
 const registerCallback = require("../../providers/song-info");
 const {hasJsonStructure} = require("../utils");
 const {fetchFromGenius} = require("../lyrics-genius/back");
+const {getOptions} = require("../../config/plugins");
 
-let port = 8080
+let port = getOptions('remote')?.port ?? 8080
 
 let controls
 let currentSongInfo
