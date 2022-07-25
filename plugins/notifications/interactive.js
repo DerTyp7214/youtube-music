@@ -51,7 +51,7 @@ function sendToaster(songInfo) {
     //download image and get path
     let imgSrc = notificationImage(songInfo, true);
     toDelete = {
-        appID: is.dev() ? undefined : "com.github.th-ch.youtube-music",
+        appID: is.dev() ? undefined : "com.github.dertyp7214.youtube-music",
         title: songInfo.title || "Playing",
         message: songInfo.artist,
         id: parseInt(Math.random() * 1000000, 10),

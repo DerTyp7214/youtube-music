@@ -743,9 +743,8 @@ function getQueueElements() {
 
 function getQueue() {
 	const items = getQueueElements()
-	const currentPlayIndex = items.findIndex(item => item.hasAttribute('selected'))
 
-	const mapped = items.splice(currentPlayIndex, items.length - currentPlayIndex).map(item => {
+	const mapped = items.map(item => {
 		const {
 			lengthText,
 			shortBylineText,
@@ -762,7 +761,8 @@ function getQueue() {
 			image: thumbnail.thumbnails[thumbnail.thumbnails.length - 1].url,
 			duration: lengthText.runs[0].text,
 			videoId,
-			position: 0
+			position: 0,
+			currentlyPlaying: item.hasAttribute('selected')
 		}
 	})
 	mapped.forEach(item => {

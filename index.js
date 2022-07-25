@@ -350,7 +350,7 @@ app.on("ready", () => {
 
 	// Register appID on windows
 	if (is.windows()) {
-		const appID = "com.github.th-ch.youtube-music";
+		const appID = "com.github.dertyp7214.youtube-music";
 		app.setAppUserModelId(appID);
 		const appLocation = process.execPath;
 		const appData = app.getPath("appData");

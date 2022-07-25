@@ -64,7 +64,7 @@ jobs:
           SNORETOAST_TAG="${{ steps.snoretoast-params.outputs.version }}"
           echo "Compiling SnoreToast $SNORETOAST_TAG"
 
-          git config --global user.email "th-ch@users.noreply.github.com"
+          git config --global user.email "dertyp7214@users.noreply.github.com"
           git config --global user.name "YouTube Music"
           git clone -c advice.detachedHead=false --branch $SNORETOAST_TAG --depth 1 https://github.com/KDE/snoretoast.git ${{ steps.snoretoast-params.outputs.path }}
           cd ${{ steps.snoretoast-params.outputs.path }}
