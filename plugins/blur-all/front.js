@@ -174,7 +174,6 @@ ytmusic-player-bar.ytmusic-app {
 #song-image.ytmusic-player, .song-media-controls.ytmusic-player, ytmusic-player.ytmusic-player-page {
 	border-radius: 8px;
 	overflow: hidden;
-	transform: translate3d(0, 0, 1px)
 }
 
 tp-yt-paper-dialog, tp-yt-paper-listbox.ytmusic-menu-popup-renderer {
