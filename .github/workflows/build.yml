@@ -93,6 +93,7 @@ jobs:
 
       - name: Test
         continue-on-error: true
+        if: false
         uses: GabrielBB/xvfb-action@v1
         with:
           run: yarn test
