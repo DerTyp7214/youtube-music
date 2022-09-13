@@ -2,8 +2,6 @@ const fs = require("fs")
 const path = require("path")
 
 const {ipcMain, ipcRenderer} = require("electron")
-const {rgbToCIELab} = require('@vibrant/color/lib/converter')
-
 // Creates a DOM element from a HTML string
 module.exports.ElementFromHtml = (html) => {
 	var template = document.createElement("template");
@@ -33,9 +31,16 @@ module.exports.listenAction = (channel, callback) => {
 	return ipcMain.on(channel, callback);
 };
 
-module.exports.fileExists = (path, callbackIfExists) => {
+module.exports.fileExists = (
+	path,
+	callbackIfExists,
+	callbackIfError = undefined
+) => {
 	fs.access(path, fs.F_OK, (err) => {
 		if (err) {
+			if (callbackIfError) {
+				callbackIfError();
+			}
 			return;
 		}
 

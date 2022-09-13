@@ -84,6 +84,22 @@ function onClosed() {
 
 function loadPlugins(win) {
 	injectCSS(win.webContents, path.join(__dirname, "youtube-music.css"));
+	// Load user CSS
+	const themes = config.get("options.themes");
+	if (Array.isArray(themes)) {
+		themes.forEach((cssFile) => {
+			fileExists(
+				cssFile,
+				() => {
+					injectCSS(win.webContents, cssFile);
+				},
+				() => {
+					console.warn(`CSS file "${cssFile}" does not exist, ignoring`);
+				}
+			);
+		});
+	}
+
 	win.webContents.once("did-finish-load", () => {
 		if (is.dev()) {
 			console.log("did finish load");
@@ -120,12 +136,12 @@ function createMainWindow() {
 			preload: path.join(__dirname, "preload.js"),
 			nodeIntegrationInSubFrames: true,
 			affinity: "main-window", // main window, and addition windows should work in one process
-			...(isTesting()
+			...(!isTesting()
 				? {
-					// Only necessary when testing with Spectron
-					contextIsolation: false,
-					nodeIntegration: true,
-				}
+						// Sandbox is only enabled in tests for now
+						// See https://www.electronjs.org/docs/latest/tutorial/sandbox#preload-scripts
+						sandbox: false,
+				  }
 				: undefined),
 		},
 		frame: !is.macOS() && !useInlineMenu,

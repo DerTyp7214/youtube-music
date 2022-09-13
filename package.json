@@ -1,7 +1,7 @@
 {
 	"name": "youtube-music",
 	"productName": "YouTube Music",
-	"version": "1.18.8",
+	"version": "1.18.9",
 	"description": "YouTube Music Desktop App - including custom plugins",
 	"license": "MIT",
 	"repository": {
@@ -70,7 +70,8 @@
 		}
 	},
 	"scripts": {
-		"test": "jest",
+		"test": "playwright test",
+		"test:debug": "DEBUG=pw:browser* playwright test",
 		"start": "electron .",
 		"start:debug": "ELECTRON_ENABLE_LOGGING=1 electron .",
 		"icon": "rimraf assets/generated && electron-icon-maker --input=assets/youtube-music.png --output=assets/generated",
@@ -95,7 +96,7 @@
 		"npm": "Please use yarn and not npm"
 	},
 	"dependencies": {
-		"@cliqz/adblocker-electron": "^1.23.7",
+		"@cliqz/adblocker-electron": "^1.23.8",
 		"@ffmpeg/core": "^0.10.0",
 		"@ffmpeg/ffmpeg": "^0.10.1",
 		"@vibrant/color": "^3.2.1-alpha.1",
@@ -115,7 +116,7 @@
 		"electron-updater": "^4.6.3",
 		"filenamify": "^4.3.0",
 		"hark": "^1.2.3",
-		"html-to-text": "^8.2.0",
+		"html-to-text": "^8.2.1",
 		"ip": "^1.1.5",
 		"md5": "^2.3.0",
 		"mpris-service": "^2.1.2",
@@ -124,17 +125,17 @@
 		"node-vibrant": "^3.2.1-alpha.1",
 		"qrcode": "^1.5.0",
 		"ws": "^8.5.0",
-		"ytdl-core": "^4.11.0",
+		"ytdl-core": "^4.11.1",
 		"ytpl": "^2.3.0"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.25.1",
 		"auto-changelog": "^2.4.0",
-		"electron": "^18.2.3",
+		"electron": "^20.1.1",
 		"electron-builder": "^23.0.3",
 		"electron-devtools-installer": "^3.1.1",
 		"electron-icon-maker": "0.0.5",
-		"jest": "^27.3.1",
-		"playwright": "^1.17.1",
+		"playwright": "^1.25.1",
 		"rimraf": "^3.0.2",
 		"xo": "^0.45.0"
 	},
