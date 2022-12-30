@@ -2,11 +2,14 @@
     align-items: unset !important;
 }
 
+#main-panel {
+    position: relative;
+}
+
 .video-switch-button {
     z-index: 999;
     box-sizing: border-box;
-    padding: 0;
-    margin-top: 20px;
+	margin-top: 20px;
     margin-left: 10px;
     background: rgba(33, 33, 33, 0.4);
     border-radius: 30px;
@@ -16,8 +19,9 @@
     font-size: 18px;
     letter-spacing: 1px;
     color: #fff;
-    padding-right: 120px;
-    position: absolute;
+	padding: 0 120px 0 0;
+	position: absolute;
+    left: var(--align);
 }
 
 .video-switch-button:before {

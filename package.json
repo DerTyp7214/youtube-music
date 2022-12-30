@@ -1,169 +1,169 @@
 {
-	"name": "youtube-music",
+  "name": "youtube-music",
+  "productName": "YouTube Music",
+  "version": "1.19.0",
+  "description": "YouTube Music Desktop App - including custom plugins",
+  "license": "MIT",
+  "repository": {
+	"type": "git",
+	"url": "https://github.com/DerTyp7214/youtube-music"
+  },
+  "author": {
+	"name": "dertyp7214",
+	"email": "dertyp7214@users.noreply.github.com",
+	"url": "https://github.com/DerTyp7214/youtube-music"
+  },
+  "build": {
+	"appId": "com.github.dertyp7214.youtube-music",
 	"productName": "YouTube Music",
-	"version": "1.18.9",
-	"description": "YouTube Music Desktop App - including custom plugins",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/DerTyp7214/youtube-music"
-	},
-	"author": {
-		"name": "dertyp7214",
-		"email": "dertyp7214@users.noreply.github.com",
-		"url": "https://github.com/DerTyp7214/youtube-music"
-	},
-	"build": {
-		"appId": "com.github.dertyp7214.youtube-music",
-		"productName": "YouTube Music",
-		"mac": {
-			"identity": null,
-			"files": [
-				"!plugins/taskbar-mediacontrol${/*}"
-			],
-			"target": [
-				{
-					"target": "dmg",
-					"arch": [
-						"x64",
-						"arm64"
-					]
-				}
-			],
-			"icon": "assets/generated/icons/mac/icon.icns"
-		},
-		"win": {
-			"icon": "assets/generated/icons/win/icon.ico",
-			"files": [
-				"!plugins/touchbar${/*}"
-			],
-			"target": [
-				"nsis",
-				"portable"
-			]
-		},
-		"nsis": {
-			"runAfterFinish": false
-		},
-		"linux": {
-			"icon": "assets/generated/icons/png",
-			"files": [
-				"!plugins/{touchbar,taskbar-mediacontrol}${/*}"
-			],
-			"category": "AudioVideo",
-			"target": [
-				"AppImage",
-				"snap",
-				"freebsd",
-				"deb",
-				"rpm"
-			]
-		},
-		"snap": {
-			"slots": [
-				{
-					"mpris": {
-						"interface": "mpris"
-					}
-				}
-			]
+	"mac": {
+	  "identity": null,
+	  "files": [
+		"!plugins/taskbar-mediacontrol${/*}"
+	  ],
+	  "target": [
+		{
+		  "target": "dmg",
+		  "arch": [
+			"x64",
+			"arm64"
+		  ]
 		}
+	  ],
+	  "icon": "assets/generated/icons/mac/icon.icns"
 	},
-	"scripts": {
-		"test": "playwright test",
-		"test:debug": "DEBUG=pw:browser* playwright test",
-		"start": "electron .",
-		"start:debug": "ELECTRON_ENABLE_LOGGING=1 electron .",
-		"icon": "rimraf assets/generated && electron-icon-maker --input=assets/youtube-music.png --output=assets/generated",
-		"generate:package": "node utils/generate-package-json.js",
-		"postinstall": "yarn run icon && yarn run plugins",
-		"clean": "rimraf dist",
-		"build": "yarn run clean && electron-builder --win --mac --linux",
-		"build:linux": "yarn run clean && electron-builder --linux",
-		"build:mac": "yarn run clean && electron-builder --mac dmg:x64",
-		"build:mac:arm64": "yarn run clean && electron-builder --mac dmg:arm64",
-		"build:win": "yarn run clean && electron-builder --win",
-		"lint": "xo",
-		"changelog": "auto-changelog",
-		"plugins": "yarn run plugin:adblocker",
-		"plugin:adblocker": "rimraf plugins/adblocker/ad-blocker-engine.bin && node plugins/adblocker/blocker.js",
-		"release:linux": "yarn run clean && electron-builder --linux -p always -c.snap.publish=github",
-		"release:mac": "yarn run clean && electron-builder --mac -p always",
-		"release:win": "yarn run clean && electron-builder --win -p always"
+	"win": {
+	  "icon": "assets/generated/icons/win/icon.ico",
+	  "files": [
+		"!plugins/touchbar${/*}"
+	  ],
+	  "target": [
+		"nsis",
+		"portable"
+	  ]
 	},
-	"engines": {
-		"node": ">=14.0.0",
-		"npm": "Please use yarn and not npm"
+	"nsis": {
+	  "runAfterFinish": false
 	},
-	"dependencies": {
-		"@cliqz/adblocker-electron": "^1.23.8",
-		"@ffmpeg/core": "^0.10.0",
-		"@ffmpeg/ffmpeg": "^0.10.1",
-		"@vibrant/color": "^3.2.1-alpha.1",
-		"Simple-YouTube-Age-Restriction-Bypass": "https://gitpkg.now.sh/zerodytrash/Simple-YouTube-Age-Restriction-Bypass/dist?v2.4.6",
-		"async-mutex": "^0.3.2",
-		"browser-id3-writer": "^4.4.0",
-		"chokidar": "^3.5.3",
-		"custom-electron-prompt": "^1.5.0",
-		"custom-electron-titlebar": "^4.1.0",
-		"discord-rpc": "^4.0.1",
-		"electron-better-web-request": "^1.0.1",
-		"electron-debug": "^3.2.0",
-		"electron-is": "^3.0.0",
-		"electron-localshortcut": "^3.2.1",
-		"electron-store": "^8.0.1",
-		"electron-unhandled": "^4.0.1",
-		"electron-updater": "^4.6.3",
-		"filenamify": "^4.3.0",
-		"hark": "^1.2.3",
-		"html-to-text": "^8.2.1",
-		"ip": "^1.1.5",
-		"md5": "^2.3.0",
-		"mpris-service": "^2.1.2",
-		"node-fetch": "^2.6.7",
-		"node-notifier": "^10.0.1",
-		"node-vibrant": "^3.2.1-alpha.1",
-		"qrcode": "^1.5.0",
-		"ws": "^8.5.0",
-		"ytdl-core": "^4.11.1",
-		"ytpl": "^2.3.0"
+	"linux": {
+	  "icon": "assets/generated/icons/png",
+	  "files": [
+		"!plugins/{touchbar,taskbar-mediacontrol}${/*}"
+	  ],
+	  "category": "AudioVideo",
+	  "target": [
+		"AppImage",
+		"snap",
+		"freebsd",
+		"deb",
+		"rpm"
+	  ]
 	},
-	"devDependencies": {
-		"@playwright/test": "^1.25.1",
-		"auto-changelog": "^2.4.0",
-		"electron": "^20.1.1",
-		"electron-builder": "^23.0.3",
-		"electron-devtools-installer": "^3.1.1",
-		"electron-icon-maker": "0.0.5",
-		"playwright": "^1.25.1",
-		"rimraf": "^3.0.2",
-		"xo": "^0.45.0"
-	},
-	"resolutions": {
-		"glob-parent": "5.1.2",
-		"minimist": "1.2.6",
-		"yargs-parser": "18.1.3"
-	},
-	"auto-changelog": {
-		"hideCredit": true,
-		"package": true,
-		"unreleased": true,
-		"output": "changelog.md"
-	},
-	"xo": {
-		"envs": [
-			"node",
-			"browser"
-		],
-		"rules": {
-			"quotes": [
-				"error",
-				"double",
-				{
-					"avoidEscape": true,
-					"allowTemplateLiterals": true
-				}
-			]
+	"snap": {
+	  "slots": [
+		{
+		  "mpris": {
+			"interface": "mpris"
+		  }
 		}
+	  ]
 	}
+  },
+  "scripts": {
+	"test": "playwright test",
+	"test:debug": "DEBUG=pw:browser* playwright test",
+	"start": "electron .",
+	"start:debug": "ELECTRON_ENABLE_LOGGING=1 electron .",
+	"icon": "rimraf assets/generated && electron-icon-maker --input=assets/youtube-music.png --output=assets/generated",
+	"generate:package": "node utils/generate-package-json.js",
+	"postinstall": "yarn run icon && yarn run plugins",
+	"clean": "rimraf dist",
+	"build": "yarn run clean && electron-builder --win --mac --linux",
+	"build:linux": "yarn run clean && electron-builder --linux",
+	"build:mac": "yarn run clean && electron-builder --mac dmg:x64",
+	"build:mac:arm64": "yarn run clean && electron-builder --mac dmg:arm64",
+	"build:win": "yarn run clean && electron-builder --win",
+	"lint": "xo",
+	"changelog": "auto-changelog",
+	"plugins": "yarn run plugin:adblocker",
+	"plugin:adblocker": "rimraf plugins/adblocker/ad-blocker-engine.bin && node plugins/adblocker/blocker.js",
+	"release:linux": "yarn run clean && electron-builder --linux -p always -c.snap.publish=github",
+	"release:mac": "yarn run clean && electron-builder --mac -p always",
+	"release:win": "yarn run clean && electron-builder --win -p always"
+  },
+  "engines": {
+	"node": ">=14.0.0",
+	"npm": "Please use yarn and not npm"
+  },
+  "dependencies": {
+	"@cliqz/adblocker-electron": "^1.25.1",
+	"@ffmpeg/core": "^0.11.0",
+	"@ffmpeg/ffmpeg": "^0.11.6",
+	"@vibrant/color": "^3.2.1-alpha.1",
+	"Simple-YouTube-Age-Restriction-Bypass": "https://gitpkg.now.sh/zerodytrash/Simple-YouTube-Age-Restriction-Bypass/dist?v2.5.4",
+	"async-mutex": "^0.4.0",
+	"browser-id3-writer": "^4.4.0",
+	"chokidar": "^3.5.3",
+	"custom-electron-prompt": "^1.5.0",
+	"custom-electron-titlebar": "^4.1.2",
+	"discord-rpc": "^4.0.1",
+	"electron-better-web-request": "^1.0.1",
+	"electron-debug": "^3.2.0",
+	"electron-is": "^3.0.0",
+	"electron-localshortcut": "^3.2.1",
+	"electron-store": "^8.1.0",
+	"electron-unhandled": "^4.0.1",
+	"electron-updater": "^4.6.3",
+	"filenamify": "^4.3.0",
+	"hark": "^1.2.3",
+	"html-to-text": "^8.2.1",
+	"ip": "^1.1.5",
+	"md5": "^2.3.0",
+	"mpris-service": "^2.1.2",
+	"node-fetch": "^2.6.7",
+	"node-notifier": "^10.0.1",
+	"node-vibrant": "^3.2.1-alpha.1",
+	"qrcode": "^1.5.0",
+	"ws": "^8.5.0",
+	"ytdl-core": "^4.11.1",
+	"ytpl": "^2.3.0"
+  },
+  "devDependencies": {
+	"@playwright/test": "^1.25.1",
+	"auto-changelog": "^2.4.0",
+	"electron": "^22.0.0",
+	"electron-builder": "^23.0.3",
+	"electron-devtools-installer": "^3.1.1",
+	"electron-icon-maker": "0.0.5",
+	"playwright": "^1.25.1",
+	"rimraf": "^3.0.2",
+	"xo": "^0.45.0"
+  },
+  "resolutions": {
+	"glob-parent": "5.1.2",
+	"minimist": "1.2.6",
+	"yargs-parser": "18.1.3"
+  },
+  "auto-changelog": {
+	"hideCredit": true,
+	"package": true,
+	"unreleased": true,
+	"output": "changelog.md"
+  },
+  "xo": {
+	"envs": [
+	  "node",
+	  "browser"
+	],
+	"rules": {
+	  "quotes": [
+		"error",
+		"double",
+		{
+		  "avoidEscape": true,
+		  "allowTemplateLiterals": true
+		}
+	  ]
+	}
+  }
 }

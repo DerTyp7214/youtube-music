@@ -153,6 +153,7 @@ function createMainWindow() {
 				: "default",
 		autoHideMenuBar: config.get("options.hideMenu"),
 	});
+	loadPlugins(win);
 
 	if (windowPosition) {
 		const {x, y} = windowPosition;
@@ -287,7 +288,6 @@ app.once("browser-window-created", (event, win) => {
 	}
 
 	setupSongInfo(win);
-	loadPlugins(win);
 	setupAppControls();
 
 	win.webContents.on("did-fail-load", (
